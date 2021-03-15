@@ -318,23 +318,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 573005328}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6d2b36fc1b2a2647a94fd8766b2c56d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f49154ce0c0d604dbc9e3dfb9e0b353, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Emps:
+  List_ItemCreate:
+  - {fileID: 11400000, guid: 0f72c61c9a32ec34f9b473281ba4755a, type: 2}
+  List_Emp:
   - {fileID: 1893366010}
-  List_ItemRefIn:
-  - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
-    Pos: {fileID: 1950457018}
-  List_ItemRefOut:
-  - ItemRef: {fileID: 11400000, guid: 0f72c61c9a32ec34f9b473281ba4755a, type: 2}
-    Pos: {fileID: 438822291}
-  Money: 500
-  NombreRecetteMinInStock: 10
-  StockItem: []
-  maxStockItem: 400
-  List_Task: []
-  IsLogg: 1
+  - {fileID: 1464360404}
+  - {fileID: 816605506}
+  Stock: []
+  List_CurrentAssignement: []
+  NumberMaxWork: 6
+  MaxStock: 400
+  Money: 1000
+  Ferme: {fileID: 1950457018}
+  Magasin: {fileID: 438822291}
+  IsLogg: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -456,23 +456,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 768982610}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6d2b36fc1b2a2647a94fd8766b2c56d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7f49154ce0c0d604dbc9e3dfb9e0b353, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Emps:
-  - {fileID: 1069188946}
-  - {fileID: 816605506}
-  List_ItemRefIn:
-  - ItemRef: {fileID: 11400000, guid: e2ddb3ad4af71f044a55dc187d94eebd, type: 2}
-    Pos: {fileID: 1597629636}
-  List_ItemRefOut:
-  - ItemRef: {fileID: 11400000, guid: 4b7941522831abf4f95d06050212c9a3, type: 2}
-    Pos: {fileID: 438822291}
-  Money: 300
-  NombreRecetteMinInStock: 0
-  StockItem: []
-  maxStockItem: 0
-  List_Task: []
+  List_ItemCreate:
+  - {fileID: 11400000, guid: 4b7941522831abf4f95d06050212c9a3, type: 2}
+  List_Emp: []
+  Stock: []
+  List_CurrentAssignement: []
+  NumberMaxWork: 0
+  MaxStock: 0
+  Money: 0
+  Ferme: {fileID: 0}
+  Magasin: {fileID: 0}
   IsLogg: 0
 --- !u!65 &768982612
 BoxCollider:

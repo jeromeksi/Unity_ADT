@@ -12,6 +12,11 @@ public class Moulin : MonoBehaviour
     public List<ItemRefAssociate> List_ItemRefIn = new List<ItemRefAssociate>();
     public List<ItemRefAssociate> List_ItemRefOut = new List<ItemRefAssociate>();
 
+
+    public List<AssignementPrio_Emp> assignementPrio_Emps = new List<AssignementPrio_Emp>();
+
+
+    public int NumberMaxWork_ItemOut; //a terme ce sera defini par le lvl du batiment
     public float Money;
 
     public int NombreRecetteMinInStock;
@@ -49,10 +54,10 @@ public class Moulin : MonoBehaviour
             case TypeAssignement.Buy:
                 ass = new Buy(ItemRefAssociate.ItemRef)
                 {
-                    ID = lastIDAsssignement,
+                    //ID = lastIDAsssignement,
                     NomAssignement = "Achète",
                     AmountMoney = 100,
-                    Batiment = this,
+                    //Batiment = this,
                     IsAssign = false,
                     PosAssignement = ItemRefAssociate.Pos.transform.position
                 };               
@@ -60,9 +65,9 @@ public class Moulin : MonoBehaviour
             case TypeAssignement.Sell:
                 ass = new Sell(ItemRefAssociate.ItemRef)
                 {
-                    ID = lastIDAsssignement,
+                    //ID = lastIDAsssignement,
                     NomAssignement = "Vend",
-                    Batiment = this,
+                    //Batiment = this,
                     AmountItem = 0,
                     IsAssign = false,
                     PosAssignement = ItemRefAssociate.Pos.transform.position,
@@ -71,15 +76,15 @@ public class Moulin : MonoBehaviour
             case TypeAssignement.Work:
                 ass = new Work(ItemRefAssociate.ItemRef)
                 {
-                    ID = lastIDAsssignement,
+                    //ID = lastIDAsssignement,
                     NomAssignement = "Create object",
                     IsAssign = false,
                     AmountItem = 1,
                     PosAssignement = this.transform.position,
                     MaxNumberAssignement = 6,
                     NumberAssignation = 0,
-                    Batiment = this,
-                    TypeAssignement = TypeAssignement.Work
+                    //Batiment = this,
+                    //TypeAssignement = TypeAssignement.Work
                 };
 
                 break;
@@ -130,7 +135,7 @@ public class Moulin : MonoBehaviour
         {
             StockItem.Add(new StockItem(it.ItemRef, 0)
             {
-                StockItemMin = StockItemMin.Medium
+                //StockItemMin = StockItemMin.Medium
             });
         }
         foreach (var it in List_ItemRefOut)
@@ -179,7 +184,8 @@ public class Moulin : MonoBehaviour
 
         }
     }
-    //Refaire lea routine Assignemnt; en partant du stock, des besoins de matieère ou d'argent)
+
+
     private IEnumerator RoutineV2()
     {
         yield return new WaitForSeconds(1);
@@ -204,26 +210,26 @@ public class Moulin : MonoBehaviour
             foreach (Buy itBuy in listBuy)
             {
                 var stockItem = StockItem.First(x => x.ItemRef == itBuy.ItemBuy);
-                int amountMin = (int)stockItem.StockItemMin * maxStockItem / 100;
-                var diff = stockItem.Amount - amountMin;
+                //int amountMin = (int)stockItem.StockItemMin * maxStockItem / 100;
+                //var diff = stockItem.Amount - amountMin;
 
-                if (stockItem.Amount < amountMin && Money > 0)
-                {
-                    if(Money> amountMin + 100)
-                    {
-                        itBuy.AmountItem = amountMin + 100;
-                        itBuy.AmountMoney = amountMin + 100;
-                    }
-                    else
-                    {
-                        itBuy.AmountItem = (int)Money;
-                        itBuy.AmountMoney = (int)Money;
-                    }
+                //if (stockItem.Amount < amountMin && Money > 0)
+                //{
+                //    if(Money> amountMin + 100)
+                //    {
+                //        itBuy.AmountItem = amountMin + 100;
+                //        itBuy.AmountMoney = amountMin + 100;
+                //    }
+                //    else
+                //    {
+                //        itBuy.AmountItem = (int)Money;
+                //        itBuy.AmountMoney = (int)Money;
+                //    }
 
-                    if(itBuy.AmountMoney > 0)
+                //    if(itBuy.AmountMoney > 0)
 
-                        listAssignementTemp.Add(new AssignementPrio(itBuy, PrioriteTemp.Forte));
-                }
+                //        listAssignementTemp.Add(new AssignementPrio(itBuy, PrioriteTemp.Forte));
+                //}
                 //Debug.Log($"Ici");                
             }
 
@@ -262,13 +268,34 @@ public class Moulin : MonoBehaviour
                 if (v == typeof(Work))
                     ((Work)ass.Assignement).NumberAssignation++;
 
-                NPControlerFree().AddAssignement(ass);
+                //NPControlerFree().AddAssignement(ass);
             }
 
             if (IsLogg)
                 SomeLog();
             yield return new WaitForSeconds(0.1f);
 
+        }
+    }
+    // Refaire lea routine Assignemnt; en partant du stock, des besoins de matieère ou d'argent)
+    // Le but c'est que le batiment sache ou il en est en nombre Assignement lancé... 
+    // Et qui fait quoi ... 
+    private IEnumerator RoutineV3()
+    {
+        yield return new WaitForSeconds(1);
+        var listAssignementTemp = new List<AssignementPrio>();
+
+        while (true)
+        {
+            foreach(var it in List_ItemRefOut)
+            {
+                //assignementPrio_Emps
+            }
+
+
+
+
+            yield return new WaitForSeconds(0.1f);
         }
     }
     public PrioriteTemp GetPrioMoney()
@@ -359,6 +386,14 @@ public class Moulin : MonoBehaviour
 
 
 }
+
+[Serializable]
+public class AssignementPrio_Emp
+{
+    public AssignementPrio AssignementPrio { get; set; }
+    public NPControler emp { get; set; }
+}
+
 [Serializable]
 public class AssignementPrio
 {
@@ -381,18 +416,14 @@ public enum PrioriteTemp
 [Serializable]
 public class StockItem
 {
-
-
-    public ItemRef ItemRef { get; set; }
-    public int Amount { get; set; }
-    public StockItemMin StockItemMin { get; set; }
+    public ItemRef ItemRef;
+    public int Amount;
+    public float AmountScaleNeedMin;
     public StockItem(ItemRef itemRef, int v)
     {
         ItemRef = itemRef;
         Amount = v;
-        StockItemMin = StockItemMin.Null;
     }
-
 }
 public enum StockItemMin
 {

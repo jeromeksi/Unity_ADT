@@ -11,13 +11,13 @@ public class NPControler : MonoBehaviour
     public int money;
     public Dictionary<ItemRef, int> StockItem;
 
-    public List<AssignementPrio> List_Assignement;
+    public List<Assignement> List_Assignement;
     public bool DoAssignement;
     public GameObject Moulin_Test;
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        List_Assignement = new List<AssignementPrio>();
+        List_Assignement = new List<Assignement>();
         DoAssignement = false;
         StockItem = new Dictionary<ItemRef, int>();
     }
@@ -36,14 +36,13 @@ public class NPControler : MonoBehaviour
             //List_Assignement.Add(new Assignement() { NomAssignement = "test", PosAssignement = Moulin_Test.transform.position });
         }
     }
-    public void AddAssignement(AssignementPrio assign)
+    public void AddAssignement(Assignement assign)
     {
         List_Assignement.Add(assign);
     }
-    private IEnumerator ExecuteAssignement(AssignementPrio fAssignementPrio)
+    private IEnumerator ExecuteAssignement(Assignement fAssignement)
     {
         DoAssignement = true;
-        var fAssignement = fAssignementPrio.Assignement;
 
 
         switch (fAssignement.TypeAssignement)
@@ -123,7 +122,8 @@ public class NPControler : MonoBehaviour
                 yield return new WaitForSeconds(1);
 
                 StockItem[fSell.ItemSell] -= fSell.AmountItem;
-                money += 100;
+                var prix = 4;
+                money = fSell.AmountItem * prix;
 
                 yield return new WaitForSeconds(1);
                 agent.SetDestination(fSell.Batiment.transform.position);
@@ -134,8 +134,8 @@ public class NPControler : MonoBehaviour
 
                 }
                 yield return new WaitForSeconds(1);
-                fSell.Batiment.AddMoney(100);
-                money -= 100;
+                fSell.Batiment.AddMoney(money);
+                money = 0 ;
                 break;
             case TypeAssignement.Work:
                 var fWork = (Work)fAssignement;
@@ -185,8 +185,13 @@ public class NPControler : MonoBehaviour
         }
 
         fAssignement.IsAssign = false;
-        List_Assignement.Remove(fAssignementPrio);
+        RemoveAssignement(fAssignement);
         agent.SetDestination(this.transform.position);
         DoAssignement = false;
+    }
+    public void RemoveAssignement(Assignement fAssignement)
+    {
+        List_Assignement.Remove(fAssignement);
+        fAssignement.Batiment.RemoveAssignement(fAssignement);
     }
 }

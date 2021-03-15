@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 [CreateAssetMenu(fileName = "ItemRef",menuName ="ItemRef/ItemRef")]
+[Serializable]
 public class ItemRef : ScriptableObject
 {
     public float ID;

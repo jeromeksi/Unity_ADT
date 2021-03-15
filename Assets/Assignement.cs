@@ -9,9 +9,12 @@ public class Assignement
     public Vector3 PosAssignement { get; set; }
     public string NameAnimation;
     public bool IsAssign { get; internal set; }
-    public int ID { get; internal set; }
+    public string ID { get; internal set; }
     public TypeAssignement TypeAssignement;
-    public Moulin Batiment { get; internal set; }
+    public MoulinV2 Batiment { get; internal set; }
+    public float LevelPrio;
+    public NPControler emp { get; set; }
+
 
 }
 [CreateAssetMenu(fileName = "Assignement", menuName = "Assignement/Buy")]

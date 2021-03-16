@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class MoulinV2 : MonoBehaviour
+public class MoulinV2 : Controller
 {
     public List<ItemRef> List_ItemCreate = new List<ItemRef>();
     public List<NPControler> List_Emp = new List<NPControler>();
@@ -19,7 +19,7 @@ public class MoulinV2 : MonoBehaviour
     public float Money;
 
     public GameObject Ferme;
-    public GameObject Magasin;
+    public Shop Magasin;
 
     public bool IsLogg;
 
@@ -40,10 +40,11 @@ public class MoulinV2 : MonoBehaviour
 
             foreach(var itw  in List_ItemCreate) //pour chaque iteam a create
             {
-                // TODO - AJouter Plusieur task work d'un coup ...
-                // On pourra réduire le temps de boucle 
-                if(List_CurrentAssignement.Where(x => x.ID == "Work_" + itw.name).ToList().Count<= NumberMaxWork)
+
+                var countWorkAssigne = List_CurrentAssignement.Where(x => x.ID == "Work_" + itw.name).ToList().Count;
+                for(int i = countWorkAssigne; i < NumberMaxWork; i++)
                 {
+                    
                     list_temp.Add(
                         new Work(itw)
                         {
@@ -52,8 +53,11 @@ public class MoulinV2 : MonoBehaviour
                             Batiment = this,
                             PosAssignement = this.transform.position,
                             LevelPrio = 1
-                        });
-                }               
+                        });                   
+                }
+
+                // On pourra réduire le temps de boucle 
+                     
 
             }
             bool NeedMoney = false;
@@ -83,7 +87,6 @@ public class MoulinV2 : MonoBehaviour
                             amout = (int)Money;
                             NeedMoney = true;
                         }
-                        Debug.Log("WOWOWO");
                         if (amout > MaxStock)
                             amout = MaxStock;
 
@@ -106,14 +109,14 @@ public class MoulinV2 : MonoBehaviour
             foreach(var its in listItemStockCreate)
             {
 
-                if(its.Amount > MaxStock*0.75f || NeedMoney)
+                if((its.Amount > MaxStock*0.75f || NeedMoney) && its.Amount > 0)
                 {
                     list_temp.Add(new Sell(its.ItemRef)
                     {
                         ID = "Sell_" + its.ItemRef.name,
                         AmountItem = its.Amount,
                         Batiment = this,
-                        PosAssignement = Magasin.transform.position,
+                        ShopRef = Magasin,
                         LevelPrio = 3
                     });
                 }
@@ -188,7 +191,7 @@ public class MoulinV2 : MonoBehaviour
                     List_ItemNeedBuy.Add(itr.ItemRef);
                 if (ItemCountNeed.Any(x => x.Key == itr.ItemRef))
                 {
-                    ItemCountNeed[itr.ItemRef] += itr.Amount;
+                    ItemCountNeed[itr.ItemRef] += itr.Amount / it.baseTimeProduct;
                 }
                 else
                 {
@@ -241,7 +244,7 @@ public class MoulinV2 : MonoBehaviour
         return isPossible;
 
     }
-    public void AddMoney(int amount)
+    public void AddMoney(float amount)
     {
         Money += amount;
     }
@@ -261,5 +264,16 @@ public class MoulinV2 : MonoBehaviour
     internal void RemoveAssignement(Assignement fAssignement)
     {
         List_CurrentAssignement.Remove(fAssignement);
+    }
+
+    public override string Observe()
+    {
+        var st = "";
+        foreach (var it in Stock)
+        {
+            st +="\n"+ it.ItemRef.Name + " : " + it.Amount;
+        }
+        st = "Money : "+Money + st;
+        return st;
     }
 }

@@ -8,7 +8,7 @@ using UnityEngine.AI;
 public class NPControler : MonoBehaviour
 {
     NavMeshAgent agent;
-    public int money;
+    public float money;
     public Dictionary<ItemRef, int> StockItem;
 
     public List<Assignement> List_Assignement;
@@ -113,7 +113,7 @@ public class NPControler : MonoBehaviour
 
                 Debug.Log("Je vais au magasin");
 
-                agent.SetDestination(fSell.PosAssignement);
+                agent.SetDestination(fSell.ShopRef.gameObject.transform.position);
                 while (!Util.CheckIsArrived(this.transform.position, agent))
                 {
                     yield return new WaitForSeconds(0.1f);
@@ -121,9 +121,31 @@ public class NPControler : MonoBehaviour
                 }
                 yield return new WaitForSeconds(1);
 
+                var price = fSell.ShopRef.PriceForItem(fSell.ItemSell);
+
+                
+
+
                 StockItem[fSell.ItemSell] -= fSell.AmountItem;
-                var prix = 4;
-                money = fSell.AmountItem * prix;
+
+
+                money = fSell.ShopRef.BuyItem(fSell.ItemSell, fSell.AmountItem);
+
+
+                //int prix;
+                //switch(fSell.ItemSell.name)
+                //{
+                //    case "Huile":
+                //        prix = 20;
+                //        break;
+                //    case "Farine":
+                //        prix = 4;
+                //        break;
+                //    default:
+                //        prix = 1;
+                //        break;
+                //}
+                //money = fSell.AmountItem * prix;
 
                 yield return new WaitForSeconds(1);
                 agent.SetDestination(fSell.Batiment.transform.position);
@@ -176,6 +198,7 @@ public class NPControler : MonoBehaviour
                     }
                     else
                     {
+                        Debug.Log("Pas de ressoures nécessaire");
                         break;
                     }
                 }

@@ -10,13 +10,25 @@ public class ItemRef : ScriptableObject
     public float ID;
     public string Name;
     public float baseTimeProduct;
+    public float BasePrice;
     public List<RecipeItem> Recipe = new List<RecipeItem>();
-}
-[Serializable]
-public class ItemRefAssociate
-{
-    public ItemRef ItemRef;
-    public GameObject Pos;
+
+    public float GetBasePrice()
+    {
+        float BasePriceCalc = 0;
+        if(Recipe.Count>0)
+        {
+            foreach (var v in Recipe)
+            {
+                BasePriceCalc += (v.ItemRef.GetBasePrice() * v.Amount);
+            }
+        }
+        else
+        {
+            BasePriceCalc = BasePrice;
+        }
+        return BasePriceCalc;
+    }
 }
 [Serializable]
 public class RecipeItem
@@ -25,18 +37,15 @@ public class RecipeItem
     public int Amount;
 }
 
-
-//public class ItemStock : ScriptableObject
-//{
-//    ItemRef itemRef { get; set; }
-//    public float Amount {get;set;}
-//    public ItemStock(ItemRef it)
-//    {
-//        itemRef = it;
-//    }
-//    public ItemStock(ItemRef it, float amount)
-//    {
-//        itemRef = it;
-//        Amount = amount;
-//    }
-//}
+[Serializable]
+public class StockItem
+{
+    public ItemRef ItemRef;
+    public int Amount;
+    public float AmountScaleNeedMin;
+    public StockItem(ItemRef itemRef, int v)
+    {
+        ItemRef = itemRef;
+        Amount = v;
+    }
+}

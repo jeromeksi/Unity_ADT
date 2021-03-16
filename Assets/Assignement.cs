@@ -39,6 +39,7 @@ public class Sell : Assignement
         TypeAssignement = TypeAssignement.Sell;
         ItemSell = itemSell;
     }
+    public Shop ShopRef { get; set; }
 }
 public class Work : Assignement
 {

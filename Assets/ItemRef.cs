@@ -10,7 +10,9 @@ public class ItemRef : ScriptableObject
     public float ID;
     public string Name;
     public float baseTimeProduct;
+    public float baseWorkingNeed;
     public float BasePrice;
+    public TypeCreate TypeCreate;
     public List<RecipeItem> Recipe = new List<RecipeItem>();
 
     public float GetBasePrice()
@@ -36,7 +38,11 @@ public class RecipeItem
     public ItemRef ItemRef;
     public int Amount;
 }
-
+public enum TypeCreate
+{
+    Craft,
+    Recolt
+}
 [Serializable]
 public class StockItem
 {

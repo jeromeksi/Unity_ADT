@@ -14,4 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 3
   Name: Fer
+  baseTimeProduct: 0
+  BasePrice: 0
+  TypeCreate: 1
   Recipe: []

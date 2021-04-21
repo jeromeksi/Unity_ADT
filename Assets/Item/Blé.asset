@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 1
   Name: "Bl\xE9"
-  baseTimeProduct: 0
+  baseTimeProduct: 2
   BasePrice: 1
+  TypeCreate: 1
   Recipe: []

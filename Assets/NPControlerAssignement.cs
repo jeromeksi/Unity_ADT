@@ -4,12 +4,14 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
+using static Sell;
 
-public class NPControler : MonoBehaviour
+public class NPControlerAssignement : MonoBehaviour
 {
     NavMeshAgent agent;
     public float money;
     public Dictionary<ItemRef, int> StockItem;
+    public List<ItemSell> List_itemsSell;
 
     public List<Assignement> List_Assignement;
     public bool DoAssignement;
@@ -20,6 +22,7 @@ public class NPControler : MonoBehaviour
         List_Assignement = new List<Assignement>();
         DoAssignement = false;
         StockItem = new Dictionary<ItemRef, int>();
+        List_itemsSell = new List<ItemSell>();
     }
 
     // Update is called once per frame
@@ -100,16 +103,15 @@ public class NPControler : MonoBehaviour
                     yield return new WaitForSeconds(0.1f);
 
                 }
-                fSell.Batiment.SuppItemStock(fSell.ItemSell, fSell.AmountItem);
+                List_itemsSell.Clear();
+                
+                foreach(var its in fSell.List_ItemSell)
+                {
+                    fSell.Batiment.SuppItemStock(its.ItemRef, its.Amount);
+                    List_itemsSell.Add(its);
+                }
 
-                if (StockItem.ContainsKey(fSell.ItemSell))
-                {
-                    StockItem[fSell.ItemSell] += fSell.AmountItem;
-                }
-                else
-                {
-                    StockItem.Add(fSell.ItemSell, fSell.AmountItem);
-                }
+
 
                 Debug.Log("Je vais au magasin");
 
@@ -121,15 +123,12 @@ public class NPControler : MonoBehaviour
                 }
                 yield return new WaitForSeconds(1);
 
-                var price = fSell.ShopRef.PriceForItem(fSell.ItemSell);
 
-                
+                foreach(var its in List_itemsSell)
+                {
+                    money += fSell.ShopRef.BuyItem(its.ItemRef, its.Amount);
 
-
-                StockItem[fSell.ItemSell] -= fSell.AmountItem;
-
-
-                money = fSell.ShopRef.BuyItem(fSell.ItemSell, fSell.AmountItem);
+                }
 
 
                 //int prix;
@@ -173,35 +172,45 @@ public class NPControler : MonoBehaviour
 
                 var r = fWork.ItemCreate.Recipe;
                 bool createItem = true;
-                for (int i = 0; i < fWork.AmountItem; i++)
+                switch(fWork.ItemCreate.TypeCreate)
                 {
-                    foreach (var ritem in r)
-                    {
-                        if (!fWork.Batiment.CheckItemAmount(ritem.ItemRef, ritem.Amount))
-                        {
-                            createItem = false;
-                        }
-                    }
-                    if (createItem)
-                    {
-                        lock (fWork.Batiment)
+                    case TypeCreate.Craft:
+                        for (int i = 0; i < fWork.AmountItem; i++)
                         {
                             foreach (var ritem in r)
                             {
-                                fWork.Batiment.SuppItemStock(ritem.ItemRef, ritem.Amount);
+                                if (!fWork.Batiment.CheckItemAmount(ritem.ItemRef, ritem.Amount))
+                                {
+                                    createItem = false;
+                                }
+                            }
+                            if (createItem)
+                            {
+                                lock (fWork.Batiment)
+                                {
+                                    foreach (var ritem in r)
+                                    {
+                                        fWork.Batiment.SuppItemStock(ritem.ItemRef, ritem.Amount);
+                                    }
+                                }
+                                yield return new WaitForSeconds(fWork.ItemCreate.baseTimeProduct);
+                                fWork.Batiment.AddItemStock(fWork.ItemCreate, 1);
+                                //Debug.Log(DateTime.Now + " : "+ this.name +"J'ai créer 1 de farine");
+
+                            }
+                            else
+                            {
+                                Debug.Log("Pas de ressoures nécessaire");
+                                break;
                             }
                         }
+                        break;
+                    case TypeCreate.Recolt:
                         yield return new WaitForSeconds(fWork.ItemCreate.baseTimeProduct);
                         fWork.Batiment.AddItemStock(fWork.ItemCreate, 1);
-                        //Debug.Log(DateTime.Now + " : "+ this.name +"J'ai créer 1 de farine");
-
-                    }
-                    else
-                    {
-                        Debug.Log("Pas de ressoures nécessaire");
                         break;
-                    }
                 }
+                
                 fWork.NumberAssignation -= 1;
 
                 break;

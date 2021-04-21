@@ -11,13 +11,12 @@ public class Assignement
     public bool IsAssign { get; internal set; }
     public string ID { get; internal set; }
     public TypeAssignement TypeAssignement;
-    public MoulinV2 Batiment { get; internal set; }
+    public BatimentProduction Batiment { get; internal set; }
     public float LevelPrio;
-    public NPControler emp { get; set; }
+    public NPControlerAssignement emp { get; set; }
 
 
 }
-[CreateAssetMenu(fileName = "Assignement", menuName = "Assignement/Buy")]
 public class Buy : Assignement
 {
     public ItemRef ItemBuy;
@@ -32,14 +31,34 @@ public class Buy : Assignement
 }
 public class Sell : Assignement
 {
-    public ItemRef ItemSell;
-    public int AmountItem;
-    public Sell(ItemRef itemSell)
+    public List<ItemSell> List_ItemSell = new List<ItemSell>();
+    public Sell(List<ItemSell> lis)
     {
         TypeAssignement = TypeAssignement.Sell;
-        ItemSell = itemSell;
+        List_ItemSell = lis;
+    }
+    public Sell()
+    {
+        TypeAssignement = TypeAssignement.Sell;
+    }
+    public void AddItemSell(ItemSell its)
+    {
+        List_ItemSell.Add(its);
+    }
+    public void AddItemSell(List<StockItem> its)
+    {
+        its.ForEach(x => List_ItemSell.Add(new ItemSell() {
+            ItemRef = x.ItemRef,
+            Amount = x.Amount
+        }));
     }
     public Shop ShopRef { get; set; }
+
+    public class ItemSell
+    {
+        public ItemRef ItemRef;
+        public int Amount;
+    }
 }
 public class Work : Assignement
 {

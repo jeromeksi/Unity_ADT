@@ -19,7 +19,7 @@ public class Shop : MonoBehaviour
     }
     public float BuyItem(ItemRef it, float amount)
     {
-        var price = it.GetBasePrice() * amount;
+        var price = it.GetBasePrice() * amount * 6;
         RecalculIndice();
 
         return price;

@@ -16,8 +16,9 @@ MonoBehaviour:
   Name: Farine
   baseTimeProduct: 4
   baseWorkingNeed: 40
+  AmountByWorking: 2
   BasePrice: 0
   TypeCreate: 0
   Recipe:
   - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
-    Amount: 2
+    Amount: 4

@@ -135,6 +135,8 @@ GameObject:
   - component: {fileID: 106614867}
   - component: {fileID: 106614866}
   - component: {fileID: 106614865}
+  - component: {fileID: 106614871}
+  - component: {fileID: 106614870}
   - component: {fileID: 106614864}
   m_Layer: 0
   m_Name: NPC (6)
@@ -152,10 +154,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 106614863}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d2929045f5af3f488099e980fdce4f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 160808447ceadfb41aa0defcc97552eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsProduct: 1
+  IsWorking: 1
 --- !u!195 &106614865
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -253,6 +255,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &106614870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106614863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508f035fb5d60674d91cb55521c403ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &106614871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 106614863}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2448c83d8a04e4442a4712d3c5e94ae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  List_Assignement: []
+  DoMainAssignement: 0
+  DoSecAssignement: 0
+  WorkMoney: 0
 --- !u!1 &189060828
 GameObject:
   m_ObjectHideFlags: 0
@@ -475,6 +505,8 @@ GameObject:
   - component: {fileID: 529334672}
   - component: {fileID: 529334671}
   - component: {fileID: 529334670}
+  - component: {fileID: 529334676}
+  - component: {fileID: 529334675}
   - component: {fileID: 529334669}
   m_Layer: 0
   m_Name: NPC (4)
@@ -492,10 +524,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 529334668}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d2929045f5af3f488099e980fdce4f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 160808447ceadfb41aa0defcc97552eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsProduct: 1
+  IsWorking: 1
 --- !u!195 &529334670
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -593,6 +625,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &529334675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529334668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508f035fb5d60674d91cb55521c403ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &529334676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 529334668}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2448c83d8a04e4442a4712d3c5e94ae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  List_Assignement: []
+  DoMainAssignement: 0
+  DoSecAssignement: 0
+  WorkMoney: 0
 --- !u!1 &573005328
 GameObject:
   m_ObjectHideFlags: 0
@@ -694,7 +754,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 573005328}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0685a308757f52145a29581c772e33fe, type: 3}
   m_Name: 
@@ -1446,6 +1506,8 @@ GameObject:
   - component: {fileID: 1307347584}
   - component: {fileID: 1307347583}
   - component: {fileID: 1307347582}
+  - component: {fileID: 1307347588}
+  - component: {fileID: 1307347587}
   - component: {fileID: 1307347581}
   m_Layer: 0
   m_Name: NPC (5)
@@ -1463,10 +1525,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1307347580}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d2929045f5af3f488099e980fdce4f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 160808447ceadfb41aa0defcc97552eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsProduct: 1
+  IsWorking: 1
 --- !u!195 &1307347582
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1564,6 +1626,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1307347587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307347580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508f035fb5d60674d91cb55521c403ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1307347588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1307347580}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2448c83d8a04e4442a4712d3c5e94ae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  List_Assignement: []
+  DoMainAssignement: 0
+  DoSecAssignement: 0
+  WorkMoney: 0
 --- !u!1 &1464360403
 GameObject:
   m_ObjectHideFlags: 0
@@ -1903,6 +1993,8 @@ GameObject:
   - component: {fileID: 1755765221}
   - component: {fileID: 1755765220}
   - component: {fileID: 1755765219}
+  - component: {fileID: 1755765225}
+  - component: {fileID: 1755765224}
   - component: {fileID: 1755765218}
   m_Layer: 0
   m_Name: NPC (7)
@@ -1920,10 +2012,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1755765217}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5d2929045f5af3f488099e980fdce4f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 160808447ceadfb41aa0defcc97552eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsProduct: 1
+  IsWorking: 1
 --- !u!195 &1755765219
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -2021,6 +2113,34 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1755765224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755765217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 508f035fb5d60674d91cb55521c403ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1755765225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1755765217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2448c83d8a04e4442a4712d3c5e94ae3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  List_Assignement: []
+  DoMainAssignement: 0
+  DoSecAssignement: 0
+  WorkMoney: 0
 --- !u!1 &1893366009
 GameObject:
   m_ObjectHideFlags: 0
@@ -2266,6 +2386,9 @@ MonoBehaviour:
   - {fileID: 529334669}
   List_ItemCreate:
   - {fileID: 11400000, guid: 0f72c61c9a32ec34f9b473281ba4755a, type: 2}
+  Money: 1000
+  Magasin: {fileID: 438822296}
+  ble: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
   Stock:
     stockItems: []
   IsProduct: 0

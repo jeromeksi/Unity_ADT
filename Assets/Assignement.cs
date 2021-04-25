@@ -31,8 +31,8 @@ public class Buy : Assignement
 }
 public class Sell : Assignement
 {
-    public List<ItemSell> List_ItemSell = new List<ItemSell>();
-    public Sell(List<ItemSell> lis)
+    public List<ItemAmount> List_ItemSell = new List<ItemAmount>();
+    public Sell(List<ItemAmount> lis)
     {
         TypeAssignement = TypeAssignement.Sell;
         List_ItemSell = lis;
@@ -41,23 +41,34 @@ public class Sell : Assignement
     {
         TypeAssignement = TypeAssignement.Sell;
     }
-    public void AddItemSell(ItemSell its)
+    public void AddItemSell(ItemAmount its)
     {
         List_ItemSell.Add(its);
     }
     public void AddItemSell(List<StockItem> its)
     {
-        its.ForEach(x => List_ItemSell.Add(new ItemSell() {
+        its.ForEach(x => List_ItemSell.Add(new ItemAmount() {
             ItemRef = x.ItemRef,
             Amount = x.Amount
         }));
     }
     public Shop ShopRef { get; set; }
 
-    public class ItemSell
+    
+}
+public class ItemAmount
+{
+    public ItemRef ItemRef;
+    public int Amount;
+    public ItemAmount(ItemRef _ItemRef, int _Amount = 0)
     {
-        public ItemRef ItemRef;
-        public int Amount;
+        ItemRef = _ItemRef;
+        Amount = _Amount;
+    }
+    public ItemAmount()
+    {
+        ItemRef = null;
+        Amount = 0;
     }
 }
 public class Work : Assignement

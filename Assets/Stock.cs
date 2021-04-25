@@ -43,8 +43,9 @@ public class Stock
         return stockItems;
     }
 
-    internal object Where(Func<object, bool> p)
+
+    internal void Add(ItemAmount ita)
     {
-        throw new NotImplementedException();
+        Add(ita.ItemRef, ita.Amount);
     }
 }

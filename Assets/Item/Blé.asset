@@ -15,6 +15,8 @@ MonoBehaviour:
   ID: 1
   Name: "Bl\xE9"
   baseTimeProduct: 2
+  baseWorkingNeed: 80
+  AmountByWorking: 8
   BasePrice: 1
   TypeCreate: 1
   Recipe: []

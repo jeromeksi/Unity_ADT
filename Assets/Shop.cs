@@ -20,13 +20,36 @@ public class Shop : MonoBehaviour
     public float BuyItem(ItemRef it, float amount)
     {
         var price = it.GetBasePrice() * amount * 6;
-        RecalculIndice();
+
 
         return price;
     }
-
-    private void RecalculIndice()
+    public Transaction SellItem(ItemAmount ita, float money)
     {
+        int nbItem = 0;
+
+        var prixPourItem = PriceForItem(ita.ItemRef);
+        float valTotalMaxitem = prixPourItem * ita.Amount;
+
+
+
+
+
+
+        if(valTotalMaxitem <= money)
+        {
+            nbItem = ita.Amount;
+        }
+        else
+        {
+            nbItem = Convert.ToInt32(ita.Amount - ((valTotalMaxitem - money) / prixPourItem));
+        }
+        var transct = new Transaction()
+        { ItemAmount = new ItemAmount(ita.ItemRef, nbItem),
+            Money = nbItem * prixPourItem
+        };
+
+        return transct;
 
     }
 
@@ -54,4 +77,9 @@ public class Shop : MonoBehaviour
             return IndiceNeed * ItemRef.GetBasePrice();
         }
     }
+}
+public struct Transaction
+{
+    public ItemAmount ItemAmount;
+    public float Money;
 }

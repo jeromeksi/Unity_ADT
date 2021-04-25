@@ -11,7 +11,7 @@ public class NPControlerAssignement : MonoBehaviour
     NavMeshAgent agent;
     public float money;
     public Dictionary<ItemRef, int> StockItem;
-    public List<ItemSell> List_itemsSell;
+    public List<ItemAmount> List_itemsSell;
 
     public List<Assignement> List_Assignement;
     public bool DoAssignement;
@@ -22,7 +22,7 @@ public class NPControlerAssignement : MonoBehaviour
         List_Assignement = new List<Assignement>();
         DoAssignement = false;
         StockItem = new Dictionary<ItemRef, int>();
-        List_itemsSell = new List<ItemSell>();
+        List_itemsSell = new List<ItemAmount>();
     }
 
     // Update is called once per frame

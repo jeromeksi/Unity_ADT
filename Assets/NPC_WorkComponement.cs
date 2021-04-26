@@ -35,10 +35,27 @@ public class NPC_WorkComponement : MonoBehaviour
         }
         else
         {
-            if (!DoSecAssignement)
+            if (!DoSecAssignement && !DoMainAssignement && MainAssignement != null)
+            {
                 DoMainAssignement = true;
+                StartCoroutine(MainAssignementRoutine());
+            }
         }
     }
+
+    private IEnumerator MainAssignementRoutine()
+    {
+        bool b = true;
+        if(MainAssignement.BatimentProduction != null)
+        {
+            NPCController.SetDestination(MainAssignement.BatimentProduction.gameObject.transform.position);
+            yield return NPCController.CheckArrive();
+
+        }
+
+
+    }
+
     internal bool HadMainAssing()
     {
         return MainAssignement != null;
@@ -116,11 +133,10 @@ public class NPC_WorkComponement : MonoBehaviour
 
     public void Set_MainAssign(AssignementV2 ass)
     {
-        if(MainAssignement != null && ass.IsMainAssignement)
-            MainAssignement = ass;
-    }
-    public void Remove_MainAssign(AssignementV2 ass)
-    {
         MainAssignement = ass;
+    }
+    public void Remove_MainAssign()
+    {
+        MainAssignement = null;
     }
 }

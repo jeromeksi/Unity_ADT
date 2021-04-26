@@ -14,7 +14,8 @@ public class BatimentProductionV2 : MonoBehaviour
 
     private List<ItemBuy> List_ItemNeedBuy = new List<ItemBuy>();
 
-
+    private bool NeedMoney;
+    private AssignementV2 MainAssignBatiment;
     public int StockMax;
 
     public float Money;
@@ -32,64 +33,27 @@ public class BatimentProductionV2 : MonoBehaviour
         InitStock();
         IsProduct = true;
         StartCoroutine(CalculatePercent());
-        //var v = new AssignementV2(this)
-        //{
-        //    IsMainAssignement = false,
-        //    TypeAssignement = TypeAssignement.Buy,
-        //    Money = 200,
-        //    Shop = Magasin
-        //};
 
-        //v.List_Item.Add(new ItemAmount(ble, 10));
-        //List_Employe[0].Assign(v);
         foreach (var itc in List_ItemCreate)
         {
 
             StartCoroutine(RoutineProdItemCreate(itc));
         }
 
-        foreach (var emp in List_Employe)
-        {
+        MainAssignBatiment = new AssignementV2(this);
+        MainAssignBatiment.IsMainAssignement = true;
+        MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
 
-            emp.Set_MainAssign(new AssignementV2(this)
-            {
-                IsMainAssignement = true
-            });
-        }
         StartCoroutine(AssignWork());
     }
 
     private IEnumerator AssignWork()
     {
+
+        yield return new WaitForSeconds(1f);
         while (IsProduct)
         {
-            //TODO - Bon ba c'est la ...
             var list_EmpWorking = List_Employe.Where(x => x.IsWorking).ToList();
-
-            //Assign to buy
-            //if(List_ItemNeedBuy.Count(x=> x.IsCurrentBuying == false) >0)
-            //{
-            //    List<ItemAmount> list_ita = new List<ItemAmount>();
-            //    foreach(var it in List_ItemNeedBuy)
-            //    {
-            //        list_ita.Add(new ItemAmount(it.ItemRef, it.Amount));
-            //        var vv = it.IsCurrentBuying;
-            //        it.IsCurrentBuying = true;
-            //    }
-
-            //    var v = new AssignementV2(this)
-            //    {
-            //        IsMainAssignement = false,
-            //        TypeAssignement = TypeAssignement.Buy,
-            //        Money = 200,
-            //        Shop = Magasin
-            //    };
-            //    v.List_Item = list_ita;
-            //    var emp = list_EmpWorking.First();
-            //        emp.Assign(v);
-            //    list_EmpWorking.Remove(emp);
-            //}
-
 
 
             var list_itemRefBuy = new List<ItemBuy>();
@@ -134,8 +98,11 @@ public class BatimentProductionV2 : MonoBehaviour
 
 
             //Assign le reste a Production
-
-            yield return new WaitForSeconds(0.1f);
+            foreach (var emp in List_Employe)
+            {
+                emp.Set_MainAssign(MainAssignBatiment);
+            }
+            yield return new WaitForSeconds(1f);
         }
     }
 
@@ -236,6 +203,7 @@ public class BatimentProductionV2 : MonoBehaviour
             Money -= assT.Money;
             return assT.Money;
         }
+        NeedMoney = true;
         throw new Exception("Pas assez d'argent");
     }
 

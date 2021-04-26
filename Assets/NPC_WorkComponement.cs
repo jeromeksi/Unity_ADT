@@ -17,36 +17,31 @@ public class NPC_WorkComponement : MonoBehaviour
     private void Start()
     {
         NPCController = GetComponent<NPCController>();
-        StartCoroutine(RoutineAssignement());
     }
-
-    private IEnumerator RoutineAssignement()
+       
+    public void Update()
     {
-        while(true)
+        if (List_Assignement.Count > 0 && !DoSecAssignement)
         {
-            if(List_Assignement.Count>0 && !DoSecAssignement)
+            DoMainAssignement = false;
+
+            var assT = List_Assignement.First();
+            if (assT != null)
             {
-                StopCoroutine(MainAssignementRoutine());
-                DoMainAssignement = false;
-
-                var assT = List_Assignement.First();
-                if(assT != null)
-                {
-                    List_Assignement.Remove(assT);
-                    StartCoroutine(SecAssignementRoutine(assT));
-                    DoSecAssignement = true;
-
-                }
-
+                List_Assignement.Remove(assT);
+                StartCoroutine( SecAssignementRoutine(assT));
+                DoSecAssignement = true;
             }
-            else
-            {
-                if(!DoMainAssignement)
-                    StartCoroutine(MainAssignementRoutine());
-            }
-
-            yield return new WaitForSeconds(0.1f);
         }
+        else
+        {
+            if (!DoSecAssignement)
+                DoMainAssignement = true;
+        }
+    }
+    internal bool HadMainAssing()
+    {
+        return MainAssignement != null;
     }
 
     internal void AssignSec(AssignementV2 assignementV2)
@@ -56,6 +51,8 @@ public class NPC_WorkComponement : MonoBehaviour
 
     private IEnumerator SecAssignementRoutine(AssignementV2 assT)
     {
+        DoSecAssignement = true;
+        DoMainAssignement = false;
         yield return new WaitForSeconds(0.1f);
         //go to Batiment de prod
         NPCController.SetDestination(assT.BatimentProduction.gameObject.transform.position);
@@ -114,21 +111,12 @@ public class NPC_WorkComponement : MonoBehaviour
         WorkMoney = 0;
         assT.BatimentProduction.AddListItem(List_StockItemWork);
         List_StockItemWork.Clear();
-
-    }
-
-    public IEnumerator MainAssignementRoutine()
-    {
-        DoMainAssignement = true;
         DoSecAssignement = false;
-        while (true)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
     }
+
     public void Set_MainAssign(AssignementV2 ass)
     {
-        if(ass.IsMainAssignement)
+        if(MainAssignement != null && ass.IsMainAssignement)
             MainAssignement = ass;
     }
     public void Remove_MainAssign(AssignementV2 ass)

@@ -36,4 +36,14 @@ public class NPCController : MonoBehaviour
     {
         WorkComponement.AssignSec(assignementV2);
     }
+
+    internal void Set_MainAssign(AssignementV2 MainAssignement)
+    {
+        WorkComponement.Set_MainAssign(MainAssignement);
+    }
+
+    internal bool Work_HadMainAssing()
+    {
+        return WorkComponement.HadMainAssing();
+    }
 }

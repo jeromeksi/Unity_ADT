@@ -10,15 +10,16 @@ public class BatimentProductionV2 : MonoBehaviour
     public List<NPCController> List_Employe = new List<NPCController>();
 
 
-    private List<WorkV2> listWork = new List<WorkV2>();
     public List<ItemRef> List_ItemCreate = new List<ItemRef>();
-    private List<ItemRef> List_ItemNeedBuy = new List<ItemRef>();
+
+    private List<ItemBuy> List_ItemNeedBuy = new List<ItemBuy>();
 
 
-    public  float Money;
+    public int StockMax;
+
+    public float Money;
 
     public Shop Magasin;
-    public ItemRef ble;
     //private List<ItemRef>
     public Stock Stock = new Stock();
 
@@ -46,6 +47,15 @@ public class BatimentProductionV2 : MonoBehaviour
 
             StartCoroutine(RoutineProdItemCreate(itc));
         }
+
+        foreach (var emp in List_Employe)
+        {
+
+            emp.Set_MainAssign(new AssignementV2(this)
+            {
+                IsMainAssignement = true
+            });
+        }
         StartCoroutine(AssignWork());
     }
 
@@ -53,7 +63,77 @@ public class BatimentProductionV2 : MonoBehaviour
     {
         while (IsProduct)
         {
+            //TODO - Bon ba c'est la ...
+            var list_EmpWorking = List_Employe.Where(x => x.IsWorking).ToList();
 
+            //Assign to buy
+            //if(List_ItemNeedBuy.Count(x=> x.IsCurrentBuying == false) >0)
+            //{
+            //    List<ItemAmount> list_ita = new List<ItemAmount>();
+            //    foreach(var it in List_ItemNeedBuy)
+            //    {
+            //        list_ita.Add(new ItemAmount(it.ItemRef, it.Amount));
+            //        var vv = it.IsCurrentBuying;
+            //        it.IsCurrentBuying = true;
+            //    }
+
+            //    var v = new AssignementV2(this)
+            //    {
+            //        IsMainAssignement = false,
+            //        TypeAssignement = TypeAssignement.Buy,
+            //        Money = 200,
+            //        Shop = Magasin
+            //    };
+            //    v.List_Item = list_ita;
+            //    var emp = list_EmpWorking.First();
+            //        emp.Assign(v);
+            //    list_EmpWorking.Remove(emp);
+            //}
+
+
+
+            var list_itemRefBuy = new List<ItemBuy>();
+            foreach(var it in List_ItemNeedBuy.Where(x=> x.IsCurrentBuying == false))
+            {
+                var its = Stock.GetStockItems(it.ItemRef);
+                
+                if(its.Amount<StockMax * 0.3f)
+                {
+                    it.Amount = Convert.ToInt32(0.7f * StockMax - its.Amount);
+                    list_itemRefBuy.Add(it);
+                }
+                else if (its.Amount < StockMax * 0.7f)
+                {
+                    if(numberEmpReadyProduct/List_Employe.Count > 0.7f)
+                    {
+
+                        it.Amount = Convert.ToInt32(StockMax - its.Amount);
+                        list_itemRefBuy.Add(it);
+                    }
+                }
+                it.IsCurrentBuying = true;
+
+            }
+
+            if (list_itemRefBuy.Count > 0)
+            {
+                var v = new AssignementV2(this)
+                {
+                    IsMainAssignement = false,
+                    TypeAssignement = TypeAssignement.Buy,
+                    Money = 200,
+                    Shop = Magasin
+                };
+                v.List_Item = ItemBuy.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
+                var emp = list_EmpWorking.First();
+                emp.Assign(v);
+            }
+
+            //Assign to Sell
+
+
+
+            //Assign le reste a Production
 
             yield return new WaitForSeconds(0.1f);
         }
@@ -92,8 +172,6 @@ public class BatimentProductionV2 : MonoBehaviour
                             if (!CheckItemAmount(ritem.ItemRef, ritem.Amount))
                             {
                                 createItem = false;
-                                if(!AddNeedItem)
-                                    NeedItemRef(ritem.ItemRef);
                             }
                         }
                         if (createItem)
@@ -135,6 +213,7 @@ public class BatimentProductionV2 : MonoBehaviour
         foreach(var ita in list_StockItemWork)
         {
             Stock.Add(ita);
+            List_ItemNeedBuy.FirstOrDefault(x => x.ItemRef == ita.ItemRef).IsCurrentBuying = false;
         }
     }
 
@@ -160,13 +239,6 @@ public class BatimentProductionV2 : MonoBehaviour
         throw new Exception("Pas assez d'argent");
     }
 
-    private void NeedItemRef(ItemRef itemRef)
-    {
-        Debug.Log("Pas la ressoures : " + itemRef);
-        if (!List_ItemNeedBuy.Exists(x => x == itemRef))
-            List_ItemNeedBuy.Add(itemRef);
-    }
-
     private void SuppItemStock(ItemRef itemRef, int amount)
     {
         Stock.Remove(itemRef, amount);
@@ -180,24 +252,8 @@ public class BatimentProductionV2 : MonoBehaviour
     private void AddItemStock(ItemRef itemRef, int amount)
     {
         Stock.Add(itemRef, amount);
-    }
-    private IEnumerator RoutineBuy()
-    {
-        while (IsProduct)
-        {
-            //vendre des 
 
-            yield return new WaitForSeconds(1f);
-        }
-    }
-    private IEnumerator RoutineSell()
-    {
-        while (true)
-        {
-
-
-            yield return new WaitForSeconds(1f);
-        }
+        //CheckItemNeedBuy();
     }
 
     private void InitStock()
@@ -215,6 +271,8 @@ public class BatimentProductionV2 : MonoBehaviour
             }
             foreach (var itr in it.Recipe)
             {
+                if (!List_ItemNeedBuy.Any(x => x.ItemRef == itr.ItemRef))
+                    List_ItemNeedBuy.Add(new ItemBuy() { ItemRef = itr.ItemRef, Amount = 0, IsCurrentBuying = false });
                 if (ItemCountNeed.Any(x => x.Key == itr.ItemRef))
                 {
                     ItemCountNeed[itr.ItemRef] += itr.Amount / it.baseTimeProduct;
@@ -235,8 +293,26 @@ public class BatimentProductionV2 : MonoBehaviour
             //Debug.Log(kv.Key.Name+" : "+kv.Value);
         }
     }
+    public class ItemBuy
+    {
+        public ItemRef ItemRef;
+        public int Amount;
+        public bool IsCurrentBuying;
+        public static ItemAmount Convert_ItemBuy_to_ItemAmount(ItemBuy itb)
+        {
+            return new ItemAmount(itb.ItemRef, itb.Amount);
+        }
 
-
+        public static List<ItemAmount> ConvertList_ItemBuy_to_ItemAmount(List<ItemBuy> itbs)
+        {
+            List<ItemAmount> listIta = new List<ItemAmount>();
+            foreach (var itb in itbs)
+            {
+                listIta.Add(ItemBuy.Convert_ItemBuy_to_ItemAmount(itb));
+            }
+            return listIta;
+        }
+    }
 
 
 }

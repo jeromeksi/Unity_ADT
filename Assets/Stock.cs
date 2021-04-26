@@ -38,9 +38,9 @@ public class Stock
             return 0;
     }
 
-    public List<StockItem> GetStockItems()
+    public StockItem GetStockItems(ItemRef it)
     {
-        return stockItems;
+        return stockItems.FirstOrDefault(x => x.ItemRef == it);
     }
 
 

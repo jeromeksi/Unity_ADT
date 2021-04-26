@@ -56,6 +56,7 @@ public class Sell : Assignement
 
     
 }
+[Serializable]
 public class ItemAmount
 {
     public ItemRef ItemRef;

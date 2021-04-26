@@ -20,8 +20,8 @@ public class NPC_MoveComponement : MonoBehaviour
     public void SetDestination(Vector3 dest)
     {
         CurrentDestination = dest;
+        agent.isStopped = false;
         agent.SetDestination(dest);
-        agent.updatePosition = true;
     }
 
     internal IEnumerator CheckArrive()
@@ -30,6 +30,6 @@ public class NPC_MoveComponement : MonoBehaviour
         {
             yield return new WaitForSeconds(0.1f);
         }
-        agent.updatePosition = false;
+        agent.isStopped = true;
     }
 }

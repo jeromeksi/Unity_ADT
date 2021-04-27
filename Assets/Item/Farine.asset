@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ID: 2
   Name: Farine
-  baseTimeProduct: 4
-  baseWorkingNeed: 40
-  AmountByWorking: 2
+  baseTimeProduct: 10
+  baseWorkingNeed: 20
+  AmountByWorking: 5
   BasePrice: 0
   TypeCreate: 0
   Recipe:
   - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
-    Amount: 4
+    Amount: 5

@@ -19,7 +19,7 @@ public class Shop : MonoBehaviour
     }
     public float BuyItem(ItemRef it, float amount)
     {
-        var price = it.GetBasePrice() * amount * 6;
+        var price = it.GetBasePrice() * amount;
 
 
         return price;
@@ -30,11 +30,6 @@ public class Shop : MonoBehaviour
 
         var prixPourItem = PriceForItem(ita.ItemRef);
         float valTotalMaxitem = prixPourItem * ita.Amount;
-
-
-
-
-
 
         if(valTotalMaxitem <= money)
         {

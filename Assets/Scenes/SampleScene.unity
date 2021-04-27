@@ -280,6 +280,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   List_Assignement: []
+  CurrentAssignement:
+    IsMainAssignement: 0
+    BatimentProduction: {fileID: 0}
+    TypeAssignement: 0
+    Shop: {fileID: 0}
+    Destination: {x: 0, y: 0, z: 0}
+    Money: 0
+    List_Item: []
   DoMainAssignement: 0
   DoSecAssignement: 0
   WorkMoney: 0
@@ -652,6 +660,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   List_Assignement: []
+  CurrentAssignement:
+    IsMainAssignement: 0
+    BatimentProduction: {fileID: 0}
+    TypeAssignement: 0
+    Shop: {fileID: 0}
+    Destination: {x: 0, y: 0, z: 0}
+    Money: 0
+    List_Item: []
   DoMainAssignement: 0
   DoSecAssignement: 0
   WorkMoney: 0
@@ -1656,6 +1672,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   List_Assignement: []
+  CurrentAssignement:
+    IsMainAssignement: 0
+    BatimentProduction: {fileID: 0}
+    TypeAssignement: 0
+    Shop: {fileID: 0}
+    Destination: {x: 0, y: 0, z: 0}
+    Money: 0
+    List_Item: []
   DoMainAssignement: 0
   DoSecAssignement: 0
   WorkMoney: 0
@@ -2145,6 +2169,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   List_Assignement: []
+  CurrentAssignement:
+    IsMainAssignement: 0
+    BatimentProduction: {fileID: 0}
+    TypeAssignement: 0
+    Shop: {fileID: 0}
+    Destination: {x: 0, y: 0, z: 0}
+    Money: 0
+    List_Item: []
   DoMainAssignement: 0
   DoSecAssignement: 0
   WorkMoney: 0
@@ -2393,11 +2425,27 @@ MonoBehaviour:
   NumberPosteMax: 10
   List_Employe:
   - {fileID: 529334669}
+  - {fileID: 1307347581}
+  - {fileID: 106614864}
+  - {fileID: 1755765218}
   List_ItemCreate:
   - {fileID: 11400000, guid: 0f72c61c9a32ec34f9b473281ba4755a, type: 2}
-  StockMax: 1000
-  Money: 1000
+  List_ItemNeedBuy: []
+  List_ItemNeedSell: []
+  NeedMoney: 0
+  MainAssignBatiment:
+    IsMainAssignement: 0
+    BatimentProduction: {fileID: 0}
+    TypeAssignement: 0
+    Shop: {fileID: 0}
+    Destination: {x: 0, y: 0, z: 0}
+    Money: 0
+    List_Item: []
+  StockMax: 100
+  Money: 100
   Magasin: {fileID: 438822296}
   Stock:
     stockItems: []
   IsProduct: 0
+  numberWorkingEmp: 0
+  numberEmpReadyProduct: 0

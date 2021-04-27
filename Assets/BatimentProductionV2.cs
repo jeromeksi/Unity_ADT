@@ -12,21 +12,26 @@ public class BatimentProductionV2 : MonoBehaviour
 
     public List<ItemRef> List_ItemCreate = new List<ItemRef>();
 
-    private List<ItemBuy> List_ItemNeedBuy = new List<ItemBuy>();
+    public  List<ItemCheckNeed> List_ItemNeedBuy = new List<ItemCheckNeed>();
 
-    private bool NeedMoney;
-    private AssignementV2 MainAssignBatiment;
+    public  List<ItemCheckNeed> List_ItemNeedSell = new List<ItemCheckNeed>();
+
+    public bool NeedMoney;
+    public AssignementV2 MainAssignBatiment;
+    
     public int StockMax;
 
     public float Money;
 
+
+
     public Shop Magasin;
-    //private List<ItemRef>
+
     public Stock Stock = new Stock();
 
     public bool IsProduct;
-    private int numberWorkingEmp;
-    private int numberEmpReadyProduct;
+    public int numberWorkingEmp;
+    public int numberEmpReadyProduct;
 
     void Start()
     {
@@ -56,27 +61,27 @@ public class BatimentProductionV2 : MonoBehaviour
             var list_EmpWorking = List_Employe.Where(x => x.IsWorking).ToList();
 
 
-            var list_itemRefBuy = new List<ItemBuy>();
-            foreach(var it in List_ItemNeedBuy.Where(x=> x.IsCurrentBuying == false))
+            var list_itemRefBuy = new List<ItemCheckNeed>();
+            foreach (var it in List_ItemNeedBuy.Where(x => x.IsCurrentActivate == false))
             {
                 var its = Stock.GetStockItems(it.ItemRef);
-                
-                if(its.Amount<StockMax * 0.3f)
+
+                if (its.Amount < StockMax * 0.3f)
                 {
                     it.Amount = Convert.ToInt32(0.7f * StockMax - its.Amount);
                     list_itemRefBuy.Add(it);
+                    it.IsCurrentActivate = true;
                 }
                 else if (its.Amount < StockMax * 0.7f)
                 {
-                    if(numberEmpReadyProduct/List_Employe.Count > 0.7f)
+                    if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
                     {
 
                         it.Amount = Convert.ToInt32(StockMax - its.Amount);
                         list_itemRefBuy.Add(it);
+                        it.IsCurrentActivate = true;
                     }
                 }
-                it.IsCurrentBuying = true;
-
             }
 
             if (list_itemRefBuy.Count > 0)
@@ -85,18 +90,82 @@ public class BatimentProductionV2 : MonoBehaviour
                 {
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Buy,
-                    Money = 200,
+                    Money = 60,
                     Shop = Magasin
                 };
-                v.List_Item = ItemBuy.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
+                v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
                 var emp = list_EmpWorking.First();
                 emp.Assign(v);
+                NeedMoney = false;
             }
 
+            yield return new WaitForSeconds(1f);
             //Assign to Sell
+            var list_itemRefSell = new List<ItemCheckNeed>();
+            foreach (var it in List_ItemNeedSell.Where(x => x.IsCurrentActivate == false))
+            {
+                var its = Stock.GetStockItems(it.ItemRef);
+                if (its.Amount > 0.7f * StockMax || NeedMoney && its.Amount > 0)
+                {
+                    it.Amount =  its.Amount;
+                    list_itemRefSell.Add(it);
+                    it.IsCurrentActivate = true;
+                }
+                else if (its.Amount > 0.5f * StockMax)
+                {
+                    if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
+                    {
 
+                        it.Amount = its.Amount;
+                        list_itemRefSell.Add(it);
+                        it.IsCurrentActivate = true;
+                    }
+                }
+            }
 
-
+            if (list_itemRefSell.Count > 0)
+            {
+                var v = new AssignementV2(this)
+                {
+                    IsMainAssignement = false,
+                    TypeAssignement = TypeAssignement.Sell,
+                    Money = 60,
+                    Shop = Magasin
+                };
+                v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefSell);
+                var emp = list_EmpWorking.First();
+                emp.Assign(v);
+                NeedMoney = false;
+            }
+            //var listItemeAmountCreate = Stock.Get_ListIteamAmount(List_ItemCreate);
+            //List<ItemAmount> list_ItaSell = new List<ItemAmount>();
+            //foreach (var ita in listItemeAmountCreate.Where(x=> x.Amount > 0))
+            //{
+            //    if (ita.Amount > 0.7f * StockMax || NeedMoney)
+            //    {
+            //        list_ItaSell.Add(ita);
+            //    }
+            //    else if (ita.Amount > 0.5f * StockMax)
+            //    {
+            //        if (numberEmpReadyProduct / List_Employe.Count > 0.7f)
+            //        {
+            //            list_ItaSell.Add(ita);
+            //        }
+            //    }
+            //}
+            //if (list_ItaSell.Count > 0 && !SellingAwait)
+            //{
+            //    var v = new AssignementV2(this)
+            //    {
+            //        IsMainAssignement = false,
+            //        TypeAssignement = TypeAssignement.Sell,
+            //        Money = 0,
+            //        Shop = Magasin
+            //    };
+            //    v.List_Item = list_ItaSell;
+            //    list_EmpWorking[1].Assign(v);
+            //    SellingAwait = true;
+            //}
             //Assign le reste a Production
             foreach (var emp in List_Employe)
             {
@@ -126,7 +195,6 @@ public class BatimentProductionV2 : MonoBehaviour
     private IEnumerator RoutineProdItemCreate(ItemRef itr)
     {
         float etatWork = 0;
-        bool AddNeedItem = false;
         while (IsProduct)
         {
             bool createItem = true;
@@ -143,7 +211,6 @@ public class BatimentProductionV2 : MonoBehaviour
                         }
                         if (createItem)
                         {
-                            AddNeedItem = false;
                             lock (Stock)
                             {
                                 foreach (var ritem in itr.Recipe)
@@ -151,11 +218,7 @@ public class BatimentProductionV2 : MonoBehaviour
                                     SuppItemStock(ritem.ItemRef, ritem.Amount);
                                 }
                             }
-                        }
-                        else
-                        {
-                            AddNeedItem = true;
-                        }                    
+                        }                
                     break;
             }
             if(createItem)
@@ -164,7 +227,6 @@ public class BatimentProductionV2 : MonoBehaviour
                 {
                     yield return new WaitForSeconds(0.1f);
                     etatWork += (numberEmpReadyProduct / 10.0f) ;
-                    Debug.Log(etatWork);
                 }
                 AddItemStock(itr, itr.AmountByWorking);
 
@@ -177,10 +239,10 @@ public class BatimentProductionV2 : MonoBehaviour
 
     internal void AddListItem(List<ItemAmount> list_StockItemWork)
     {
-        foreach(var ita in list_StockItemWork)
+        foreach(var ita in list_StockItemWork.Where(x => x.Amount > 0))
         {
             Stock.Add(ita);
-            List_ItemNeedBuy.FirstOrDefault(x => x.ItemRef == ita.ItemRef).IsCurrentBuying = false;
+            List_ItemNeedBuy.FirstOrDefault(x => x.ItemRef == ita.ItemRef).IsCurrentActivate = false;
         }
     }
 
@@ -192,7 +254,15 @@ public class BatimentProductionV2 : MonoBehaviour
     internal ItemAmount GetItemAmountSell(ItemAmount ita)
     {
         var sItr = Stock.GetNumber(ita.ItemRef);
-        return new ItemAmount() { ItemRef = ita.ItemRef, Amount = sItr >= ita.Amount ? ita.Amount : sItr };
+        if(sItr > 0)
+        {
+            Stock.Remove(ita.ItemRef, sItr);
+            return new ItemAmount() { ItemRef = ita.ItemRef, Amount = sItr >= ita.Amount ? ita.Amount : sItr };
+        }
+        else
+        {
+            return null;
+        }
 
     }
 
@@ -203,8 +273,14 @@ public class BatimentProductionV2 : MonoBehaviour
             Money -= assT.Money;
             return assT.Money;
         }
-        NeedMoney = true;
-        throw new Exception("Pas assez d'argent");
+        else
+        {
+            var moneyT = Money;
+            Money -= Money;
+            NeedMoney = true;
+            return moneyT;
+
+        }
     }
 
     private void SuppItemStock(ItemRef itemRef, int amount)
@@ -215,72 +291,63 @@ public class BatimentProductionV2 : MonoBehaviour
     private bool CheckItemAmount(ItemRef itemRef, int amount)
     {
         return Stock.GetNumber(itemRef) >= amount;
-        //return true;
     }
     private void AddItemStock(ItemRef itemRef, int amount)
     {
         Stock.Add(itemRef, amount);
 
-        //CheckItemNeedBuy();
     }
-
+    internal static void AssignEnd(AssignementV2 assignementV2, bool succed)
+    {
+        throw new NotImplementedException();
+    }
     private void InitStock()
     {
-        Dictionary<ItemRef, float> ItemCountNeed = new Dictionary<ItemRef, float>();
+        List<ItemRef> ItemNeed = new List<ItemRef>();
         foreach (var it in List_ItemCreate)
         {
-            if (ItemCountNeed.Any(x => x.Key == it))
-            {
-                ItemCountNeed[it]++;
-            }
-            else
-            {
-                ItemCountNeed.Add(it, 1);
+            if (!ItemNeed.Any(x => x == it))
+            {             
+                ItemNeed.Add(it);
+
+                List_ItemNeedSell.Add(new ItemCheckNeed() { ItemRef = it, Amount = 0,IsCurrentActivate=false});
             }
             foreach (var itr in it.Recipe)
             {
                 if (!List_ItemNeedBuy.Any(x => x.ItemRef == itr.ItemRef))
-                    List_ItemNeedBuy.Add(new ItemBuy() { ItemRef = itr.ItemRef, Amount = 0, IsCurrentBuying = false });
-                if (ItemCountNeed.Any(x => x.Key == itr.ItemRef))
-                {
-                    ItemCountNeed[itr.ItemRef] += itr.Amount / it.baseTimeProduct;
-                }
-                else
-                {
-                    ItemCountNeed.Add(itr.ItemRef, itr.Amount / it.baseTimeProduct);
+                    List_ItemNeedBuy.Add(new ItemCheckNeed() { ItemRef = itr.ItemRef, Amount = 0, IsCurrentActivate = false });
+
+
+                if (!ItemNeed.Any(x => x == itr.ItemRef))
+                {                
+                    ItemNeed.Add(itr.ItemRef);
                 }
             }
         }
-        foreach (var kv in ItemCountNeed)
+        foreach (var itr in ItemNeed)
         {
-            Stock.Add(new StockItem(kv.Key, 0)
-            {
-                Amount = 0,
-                AmountScaleNeedMin = Mathf.Clamp(kv.Value, 0.001f, 1)
-            });
-            //Debug.Log(kv.Key.Name+" : "+kv.Value);
+            Stock.Add(new ItemAmount(itr));
         }
     }
-    public class ItemBuy
+    [Serializable]
+    public class ItemCheckNeed
     {
         public ItemRef ItemRef;
         public int Amount;
-        public bool IsCurrentBuying;
-        public static ItemAmount Convert_ItemBuy_to_ItemAmount(ItemBuy itb)
+        public bool IsCurrentActivate;
+        public static ItemAmount Convert_ItemBuy_to_ItemAmount(ItemCheckNeed itb)
         {
             return new ItemAmount(itb.ItemRef, itb.Amount);
         }
 
-        public static List<ItemAmount> ConvertList_ItemBuy_to_ItemAmount(List<ItemBuy> itbs)
+        public static List<ItemAmount> ConvertList_ItemBuy_to_ItemAmount(List<ItemCheckNeed> itbs)
         {
             List<ItemAmount> listIta = new List<ItemAmount>();
             foreach (var itb in itbs)
             {
-                listIta.Add(ItemBuy.Convert_ItemBuy_to_ItemAmount(itb));
+                listIta.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(itb));
             }
             return listIta;
         }
     }
-
-
 }

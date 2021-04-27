@@ -8,7 +8,7 @@ public class NPC_WorkComponement : MonoBehaviour
 {
     public List<AssignementV2> List_Assignement = new List<AssignementV2>();
     private AssignementV2 MainAssignement;
-
+    public AssignementV2 CurrentAssignement;
     private NPCController NPCController;
     public bool DoMainAssignement;
     public bool DoSecAssignement;
@@ -28,8 +28,9 @@ public class NPC_WorkComponement : MonoBehaviour
             var assT = List_Assignement.First();
             if (assT != null)
             {
-                List_Assignement.Remove(assT);
+                CurrentAssignement = assT;
                 StartCoroutine( SecAssignementRoutine(assT));
+                List_Assignement.Remove(assT);
                 DoSecAssignement = true;
             }
         }
@@ -79,56 +80,69 @@ public class NPC_WorkComponement : MonoBehaviour
 
 
         //Take Money ou Item
-        WorkMoney = assT.BatimentProduction.GetMoneyForAss(assT);
-
-        if(assT.TypeAssignement == TypeAssignement.Sell)
+        switch(assT.TypeAssignement)
         {
-            foreach(var ita in assT.List_Item)
-            {
-                List_StockItemWork.Add(assT.BatimentProduction.GetItemAmountSell(ita));
-            }
-        }
-
-        //GO to shop
-        NPCController.SetDestination(assT.Shop.gameObject.transform.position);
-
-
-        yield return NPCController.CheckArrive();
-        
-
-        //Vendre ou Buy
-        switch (assT.TypeAssignement)
-        {
-            case TypeAssignement.Buy:
-                foreach(var ita in assT.List_Item)
-                {
-
-                    var trasact = assT.Shop.SellItem(ita, WorkMoney);
-
-                    List_StockItemWork.Add(trasact.ItemAmount);
-                    WorkMoney -= trasact.Money;
-                }
-                break;
             case TypeAssignement.Sell:
-                foreach(var ita in List_StockItemWork)
+                foreach (var ita in assT.List_Item)
                 {
-                    WorkMoney += assT.Shop.BuyItem(ita.ItemRef, ita.Amount);
+                    var itas = assT.BatimentProduction.GetItemAmountSell(ita);
+                    if(itas !=null)
+                    {
+                        List_StockItemWork.Add(itas);
+                    }
                 }
                 break;
+            case TypeAssignement.Buy:
+                WorkMoney = assT.BatimentProduction.GetMoneyForAss(assT);
+
+                break;
         }
-        //Goto Bat
+        if(WorkMoney > 0 || List_StockItemWork.Count > 0)
+        {
 
-        NPCController.SetDestination(assT.BatimentProduction.gameObject.transform.position);
+            //GO to shop
+            NPCController.SetDestination(assT.Shop.gameObject.transform.position);
 
 
-        yield return NPCController.CheckArrive();
+            yield return NPCController.CheckArrive();
 
-        //decharge
-        assT.BatimentProduction.AddMoney(WorkMoney);
-        WorkMoney = 0;
-        assT.BatimentProduction.AddListItem(List_StockItemWork);
-        List_StockItemWork.Clear();
-        DoSecAssignement = false;
+
+            //Vendre ou Buy
+            switch (assT.TypeAssignement)
+            {
+                case TypeAssignement.Buy:
+                    foreach (var ita in assT.List_Item)
+                    {
+
+                        var trasact = assT.Shop.SellItem(ita, WorkMoney);
+
+                        List_StockItemWork.Add(trasact.ItemAmount);
+                        WorkMoney -= trasact.Money;
+                    }
+                    break;
+                case TypeAssignement.Sell:
+                    foreach (var ita in List_StockItemWork)
+                    {
+                        WorkMoney += assT.Shop.BuyItem(ita.ItemRef, ita.Amount);
+                        ita.Amount -= ita.Amount;
+
+                    }
+                    break;
+            }
+            //Goto Bat
+
+            NPCController.SetDestination(assT.BatimentProduction.gameObject.transform.position);
+
+
+            yield return NPCController.CheckArrive();
+
+            //decharge
+            assT.BatimentProduction.AddMoney(WorkMoney);
+            WorkMoney = 0;
+            assT.BatimentProduction.AddListItem(List_StockItemWork);
+            List_StockItemWork.Clear();
+            DoSecAssignement = false;
+        }      
     }
 
     public void Set_MainAssign(AssignementV2 ass)

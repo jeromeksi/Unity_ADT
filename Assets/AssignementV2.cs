@@ -19,4 +19,8 @@ public class AssignementV2
     {
         this.BatimentProduction = batimentProductionV2;
     }
+    public void EndAssign(bool Succed)
+    {
+        BatimentProductionV2.AssignEnd(this, Succed);
+    }
 }

@@ -141,8 +141,13 @@ public class NPC_WorkComponement : MonoBehaviour
             WorkMoney = 0;
             assT.BatimentProduction.AddListItem(List_StockItemWork);
             List_StockItemWork.Clear();
-            DoSecAssignement = false;
-        }      
+            assT.EndAssign(true);
+        }
+        else
+        {
+            assT.EndAssign(false);
+        }
+        DoSecAssignement = false;
     }
 
     public void Set_MainAssign(AssignementV2 ass)

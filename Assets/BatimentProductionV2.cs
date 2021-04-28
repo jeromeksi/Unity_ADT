@@ -68,7 +68,9 @@ public class BatimentProductionV2 : MonoBehaviour
 
                 if (its.Amount < StockMax * 0.3f)
                 {
-                    it.Amount = Convert.ToInt32(0.7f * StockMax - its.Amount);
+
+                    it.Amount = Convert.ToInt32(StockMax - its.Amount);
+
                     list_itemRefBuy.Add(it);
                     it.IsCurrentActivate = true;
                 }
@@ -90,13 +92,16 @@ public class BatimentProductionV2 : MonoBehaviour
                 {
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Buy,
-                    Money = 60,
+                    Money = 90,
                     Shop = Magasin
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
                 var emp = list_EmpWorking.First();
-                emp.Assign(v);
-                NeedMoney = false;
+                emp.Assign(v); 
+                lock (this)
+                {
+                    NeedMoney = false;
+                }
             }
 
             yield return new WaitForSeconds(1f);
@@ -129,43 +134,15 @@ public class BatimentProductionV2 : MonoBehaviour
                 {
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Sell,
-                    Money = 60,
+                    Money = 0,
                     Shop = Magasin
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefSell);
-                var emp = list_EmpWorking.First();
+                var emp = list_EmpWorking[1];
                 emp.Assign(v);
-                NeedMoney = false;
+               
             }
-            //var listItemeAmountCreate = Stock.Get_ListIteamAmount(List_ItemCreate);
-            //List<ItemAmount> list_ItaSell = new List<ItemAmount>();
-            //foreach (var ita in listItemeAmountCreate.Where(x=> x.Amount > 0))
-            //{
-            //    if (ita.Amount > 0.7f * StockMax || NeedMoney)
-            //    {
-            //        list_ItaSell.Add(ita);
-            //    }
-            //    else if (ita.Amount > 0.5f * StockMax)
-            //    {
-            //        if (numberEmpReadyProduct / List_Employe.Count > 0.7f)
-            //        {
-            //            list_ItaSell.Add(ita);
-            //        }
-            //    }
-            //}
-            //if (list_ItaSell.Count > 0 && !SellingAwait)
-            //{
-            //    var v = new AssignementV2(this)
-            //    {
-            //        IsMainAssignement = false,
-            //        TypeAssignement = TypeAssignement.Sell,
-            //        Money = 0,
-            //        Shop = Magasin
-            //    };
-            //    v.List_Item = list_ItaSell;
-            //    list_EmpWorking[1].Assign(v);
-            //    SellingAwait = true;
-            //}
+            
             //Assign le reste a Production
             foreach (var emp in List_Employe)
             {
@@ -271,13 +248,20 @@ public class BatimentProductionV2 : MonoBehaviour
         if(Money >= assT.Money)
         {
             Money -= assT.Money;
+            lock (this)
+            {
+                NeedMoney = false;
+            }
             return assT.Money;
         }
         else
         {
             var moneyT = Money;
             Money -= Money;
-            NeedMoney = true;
+            lock (this)
+            {
+                NeedMoney = true;
+            }
             return moneyT;
 
         }
@@ -297,9 +281,29 @@ public class BatimentProductionV2 : MonoBehaviour
         Stock.Add(itemRef, amount);
 
     }
-    internal static void AssignEnd(AssignementV2 assignementV2, bool succed)
+    internal void AssignEnd(AssignementV2 assignementV2, bool succed)
     {
-        throw new NotImplementedException();
+        switch(assignementV2.TypeAssignement)
+        {
+            case TypeAssignement.Buy:
+                DesactivateAll(assignementV2.List_Item, List_ItemNeedBuy);
+                break;
+            case TypeAssignement.Sell:
+                DesactivateAll(assignementV2.List_Item, List_ItemNeedSell);
+                break;
+        }
+       
+    }
+    private void DesactivateAll(List<ItemAmount> lista, List<ItemCheckNeed> lisNeed)
+    {
+        foreach (var it in lista)
+        {
+            var ite = lisNeed.First(x => x.ItemRef == it.ItemRef);
+            if(ite != null)
+            {
+                ite.IsCurrentActivate = false;
+            }
+        }
     }
     private void InitStock()
     {

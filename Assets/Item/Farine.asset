@@ -15,8 +15,8 @@ MonoBehaviour:
   ID: 2
   Name: Farine
   baseTimeProduct: 10
-  baseWorkingNeed: 20
-  AmountByWorking: 5
+  baseWorkingNeed: 10
+  AmountByWorking: 1
   BasePrice: 0
   TypeCreate: 0
   Recipe:

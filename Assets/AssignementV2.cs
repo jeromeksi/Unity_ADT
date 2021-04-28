@@ -21,6 +21,6 @@ public class AssignementV2
     }
     public void EndAssign(bool Succed)
     {
-        BatimentProductionV2.AssignEnd(this, Succed);
+        BatimentProduction.AssignEnd(this, Succed);
     }
 }

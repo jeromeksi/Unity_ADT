@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class Batiment_Controller : MonoBehaviour
+[RequireComponent(typeof(Shop))]
+[RequireComponent(typeof(BatimentProductionV2))]
+public class BatimentProduction_Controller : MonoBehaviour
 {
     private Shop Shop;
     private BatimentProductionV2 BatimentProductionV2;
+    private StockBatiment StockBatiment;
     void Start()
     {
         TryGetComponent<Shop>(out Shop);

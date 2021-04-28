@@ -32,12 +32,12 @@ public class NPCController : MonoBehaviour
 
     }
 
-    internal void Assign(AssignementV2 assignementV2)
+    internal void Assign(Assignement assignementV2)
     {
         WorkComponement.AssignSec(assignementV2);
     }
 
-    internal void Set_MainAssign(AssignementV2 MainAssignement)
+    internal void Set_MainAssign(Assignement MainAssignement)
     {
         WorkComponement.Set_MainAssign(MainAssignement);
     }
@@ -45,5 +45,10 @@ public class NPCController : MonoBehaviour
     internal bool Work_HadMainAssing()
     {
         return WorkComponement.HadMainAssing();
+    }
+
+    internal int CountSecAssign()
+    {
+        return WorkComponement.List_Assignement.Count;
     }
 }

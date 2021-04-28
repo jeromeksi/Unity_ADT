@@ -17,7 +17,7 @@ public class BatimentProductionV2 : MonoBehaviour
     public  List<ItemCheckNeed> List_ItemNeedSell = new List<ItemCheckNeed>();
 
     public bool NeedMoney;
-    public AssignementV2 MainAssignBatiment;
+    public Assignement MainAssignBatiment;
     
     public int StockMax;
 
@@ -45,7 +45,7 @@ public class BatimentProductionV2 : MonoBehaviour
             StartCoroutine(RoutineProdItemCreate(itc));
         }
 
-        MainAssignBatiment = new AssignementV2(this);
+        MainAssignBatiment = new Assignement(this);
         MainAssignBatiment.IsMainAssignement = true;
         MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
 
@@ -88,7 +88,7 @@ public class BatimentProductionV2 : MonoBehaviour
 
             if (list_itemRefBuy.Count > 0)
             {
-                var v = new AssignementV2(this)
+                var v = new Assignement(this)
                 {
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Buy,
@@ -96,8 +96,16 @@ public class BatimentProductionV2 : MonoBehaviour
                     Shop = Magasin
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
-                var emp = list_EmpWorking.First();
-                emp.Assign(v); 
+                var emp = GetFreeNPCController();
+                if(emp != null)
+                {
+                    emp.Assign(v);
+                }
+                else
+                {
+                    AssignEnd(v, false);
+                }
+
                 lock (this)
                 {
                     NeedMoney = false;
@@ -130,7 +138,7 @@ public class BatimentProductionV2 : MonoBehaviour
 
             if (list_itemRefSell.Count > 0)
             {
-                var v = new AssignementV2(this)
+                var v = new Assignement(this)
                 {
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Sell,
@@ -138,9 +146,16 @@ public class BatimentProductionV2 : MonoBehaviour
                     Shop = Magasin
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefSell);
-                var emp = list_EmpWorking[1];
-                emp.Assign(v);
-               
+                var emp = GetFreeNPCController();
+                if (emp != null)
+                {
+                    emp.Assign(v);
+                }
+                else
+                {
+                    AssignEnd(v,false);
+                }
+
             }
             
             //Assign le reste a Production
@@ -151,7 +166,21 @@ public class BatimentProductionV2 : MonoBehaviour
             yield return new WaitForSeconds(1f);
         }
     }
+    public NPCController GetFreeNPCController()
+    {
+        NPCController ret = null;
+        if (List_Employe.Count>0)
+        {
+            ret = List_Employe[0];
+            foreach (var npc in List_Employe)
+            {
+                ret = ret.CountSecAssign() > npc.CountSecAssign() ? npc : ret;
+            }
+        }
+        return ret; 
 
+
+    }
     private IEnumerator CalculatePercent()
     {
         while (IsProduct)
@@ -243,7 +272,7 @@ public class BatimentProductionV2 : MonoBehaviour
 
     }
 
-    internal float GetMoneyForAss(AssignementV2 assT)
+    internal float GetMoneyForAss(Assignement assT)
     {
         if(Money >= assT.Money)
         {
@@ -281,7 +310,7 @@ public class BatimentProductionV2 : MonoBehaviour
         Stock.Add(itemRef, amount);
 
     }
-    internal void AssignEnd(AssignementV2 assignementV2, bool succed)
+    internal void AssignEnd(Assignement assignementV2, bool succed)
     {
         switch(assignementV2.TypeAssignement)
         {
@@ -332,26 +361,49 @@ public class BatimentProductionV2 : MonoBehaviour
         {
             Stock.Add(new ItemAmount(itr));
         }
-    }
-    [Serializable]
-    public class ItemCheckNeed
+    }   
+}
+[Serializable]
+public class ItemAmount
+{
+    public ItemRef ItemRef;
+    public int Amount;
+    public ItemAmount(ItemRef _ItemRef, int _Amount = 0)
     {
-        public ItemRef ItemRef;
-        public int Amount;
-        public bool IsCurrentActivate;
-        public static ItemAmount Convert_ItemBuy_to_ItemAmount(ItemCheckNeed itb)
-        {
-            return new ItemAmount(itb.ItemRef, itb.Amount);
-        }
+        ItemRef = _ItemRef;
+        Amount = _Amount;
+    }
+    public ItemAmount()
+    {
+        ItemRef = null;
+        Amount = 0;
+    }
+}
+public enum TypeAssignement
+{
+    Buy,
+    Sell,
+    Goto,
+    Work
+}
+[Serializable]
+public class ItemCheckNeed
+{
+    public ItemRef ItemRef;
+    public int Amount;
+    public bool IsCurrentActivate;
+    public static ItemAmount Convert_ItemBuy_to_ItemAmount(ItemCheckNeed itb)
+    {
+        return new ItemAmount(itb.ItemRef, itb.Amount);
+    }
 
-        public static List<ItemAmount> ConvertList_ItemBuy_to_ItemAmount(List<ItemCheckNeed> itbs)
+    public static List<ItemAmount> ConvertList_ItemBuy_to_ItemAmount(List<ItemCheckNeed> itbs)
+    {
+        List<ItemAmount> listIta = new List<ItemAmount>();
+        foreach (var itb in itbs)
         {
-            List<ItemAmount> listIta = new List<ItemAmount>();
-            foreach (var itb in itbs)
-            {
-                listIta.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(itb));
-            }
-            return listIta;
+            listIta.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(itb));
         }
+        return listIta;
     }
 }

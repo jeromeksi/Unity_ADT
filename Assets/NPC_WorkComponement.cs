@@ -6,9 +6,9 @@ using UnityEngine;
 
 public class NPC_WorkComponement : MonoBehaviour
 {
-    public List<AssignementV2> List_Assignement = new List<AssignementV2>();
-    private AssignementV2 MainAssignement;
-    public AssignementV2 CurrentAssignement;
+    public List<Assignement> List_Assignement = new List<Assignement>();
+    private Assignement MainAssignement;
+    public Assignement CurrentAssignement;
     private NPCController NPCController;
     public bool DoMainAssignement;
     public bool DoSecAssignement;
@@ -30,7 +30,7 @@ public class NPC_WorkComponement : MonoBehaviour
             {
                 CurrentAssignement = assT;
                 StartCoroutine( SecAssignementRoutine(assT));
-                List_Assignement.Remove(assT);
+                
                 DoSecAssignement = true;
             }
         }
@@ -62,12 +62,12 @@ public class NPC_WorkComponement : MonoBehaviour
         return MainAssignement != null;
     }
 
-    internal void AssignSec(AssignementV2 assignementV2)
+    internal void AssignSec(Assignement assignementV2)
     {
         List_Assignement.Add(assignementV2);
     }
 
-    private IEnumerator SecAssignementRoutine(AssignementV2 assT)
+    private IEnumerator SecAssignementRoutine(Assignement assT)
     {
         DoSecAssignement = true;
         DoMainAssignement = false;
@@ -147,10 +147,12 @@ public class NPC_WorkComponement : MonoBehaviour
         {
             assT.EndAssign(false);
         }
+        List_Assignement.Remove(assT);
+
         DoSecAssignement = false;
     }
 
-    public void Set_MainAssign(AssignementV2 ass)
+    public void Set_MainAssign(Assignement ass)
     {
         MainAssignement = ass;
     }

@@ -9,6 +9,7 @@ public class BatimentProduction_Controller : MonoBehaviour
     private Shop Shop;
     private BatimentProductionV2 BatimentProductionV2;
     private StockBatiment StockBatiment;
+
     void Start()
     {
         TryGetComponent<Shop>(out Shop);
@@ -26,5 +27,6 @@ public class BatimentProduction_Controller : MonoBehaviour
             return BatimentProductionV2;
         throw new System.Exception("Pas de shop dans ce BatimentProductionV2");
     }
+    
 }
 

@@ -13,9 +13,16 @@ public class Shop : MonoBehaviour
         InitValue();
     }
 
-    public float PriceForItem(ItemRef it)
+    public float? PriceForItem(ItemRef it)
     {
-        return List_ItemPrice.First(x => x.ItemRef == it).GetPriceIndex();
+        try
+        {
+            return List_ItemPrice.First(x => x.ItemRef == it).GetPriceIndex();
+        }
+        catch
+        {
+            return null;
+        }
     }
     public float BuyItem(ItemRef it, float amount)
     {
@@ -29,22 +36,29 @@ public class Shop : MonoBehaviour
         int nbItem = 0;
 
         var prixPourItem = PriceForItem(ita.ItemRef);
-        float valTotalMaxitem = prixPourItem * ita.Amount;
-
-        if(valTotalMaxitem <= money)
+        if(prixPourItem != null)
         {
-            nbItem = ita.Amount;
+            float valTotalMaxitem = prixPourItem.Value * ita.Amount;
+
+            if (valTotalMaxitem <= money)
+            {
+                nbItem = ita.Amount;
+            }
+            else
+            {
+                nbItem = Convert.ToInt32(ita.Amount - ((valTotalMaxitem - money) / prixPourItem));
+            }
+            var transct = new Transaction()
+            {
+                ItemAmount = new ItemAmount(ita.ItemRef, nbItem),
+                Money = nbItem * prixPourItem.Value
+            };
+            return transct;
         }
         else
         {
-            nbItem = Convert.ToInt32(ita.Amount - ((valTotalMaxitem - money) / prixPourItem));
+            return null;
         }
-        var transct = new Transaction()
-        { ItemAmount = new ItemAmount(ita.ItemRef, nbItem),
-            Money = nbItem * prixPourItem
-        };
-
-        return transct;
 
     }
 
@@ -73,7 +87,7 @@ public class Shop : MonoBehaviour
         }
     }
 }
-public struct Transaction
+public class Transaction
 {
     public ItemAmount ItemAmount;
     public float Money;

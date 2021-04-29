@@ -106,13 +106,12 @@ public class BatimentProductionV2 : MonoBehaviour
                     AssignEnd(v, false);
                 }
 
-                lock (this)
-                {
-                    NeedMoney = false;
-                }
             }
 
             yield return new WaitForSeconds(1f);
+
+
+
             //Assign to Sell
             var list_itemRefSell = new List<ItemCheckNeed>();
             foreach (var it in List_ItemNeedSell.Where(x => x.IsCurrentActivate == false))
@@ -255,6 +254,10 @@ public class BatimentProductionV2 : MonoBehaviour
     internal void AddMoney(float workMoney)
     {
         Money += workMoney;
+        lock (this)
+        {
+            NeedMoney = false;
+        }
     }
 
     internal ItemAmount GetItemAmountSell(ItemAmount ita)

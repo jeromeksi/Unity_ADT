@@ -10,15 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f941c7226db258479e3420ff5acc96c, type: 3}
-  m_Name: Farine
+  m_Name: Huile de colza
   m_EditorClassIdentifier: 
-  ID: 2
-  Name: Farine
-  baseTimeProduct: 10
+  ID: 8
+  Name: Huile de colza
   baseWorkingNeed: 30
   AmountByWorking: 1
   BasePrice: 0
   TypeCreate: 0
   Recipe:
-  - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
-    Amount: 5
+  - ItemRef: {fileID: 11400000, guid: 49e2f51bd42fad24bba173b5338c8f01, type: 2}
+    Amount: 4

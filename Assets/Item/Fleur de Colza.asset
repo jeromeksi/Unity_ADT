@@ -10,15 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7f941c7226db258479e3420ff5acc96c, type: 3}
-  m_Name: Farine
+  m_Name: Fleur de Colza
   m_EditorClassIdentifier: 
-  ID: 2
-  Name: Farine
-  baseTimeProduct: 10
-  baseWorkingNeed: 30
-  AmountByWorking: 1
-  BasePrice: 0
-  TypeCreate: 0
-  Recipe:
-  - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
-    Amount: 5
+  ID: 7
+  Name: Fleur de Colza
+  baseWorkingNeed: 6
+  AmountByWorking: 0
+  BasePrice: 2
+  TypeCreate: 1
+  Recipe: []

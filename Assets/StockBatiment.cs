@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class StockBatiment : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public MoneyComponent MoneyComponent;
 
-    // Update is called once per frame
-    void Update()
+    private Stock Stock;
+
+    public StockBatiment()
     {
-        
+        MoneyComponent = new MoneyComponent();
+        Stock = new Stock();
     }
+    
+
 }

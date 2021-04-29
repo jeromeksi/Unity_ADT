@@ -115,9 +115,11 @@ public class NPC_WorkComponement : MonoBehaviour
                     {
 
                         var trasact = assT.Shop.SellItem(ita, WorkMoney);
-
-                        List_StockItemWork.Add(trasact.ItemAmount);
-                        WorkMoney -= trasact.Money;
+                        if(trasact != null)
+                        {
+                            List_StockItemWork.Add(trasact.ItemAmount);
+                            WorkMoney -= trasact.Money;
+                        }
                     }
                     break;
                 case TypeAssignement.Sell:

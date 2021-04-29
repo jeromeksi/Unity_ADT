@@ -44,15 +44,3 @@ public enum TypeCreate
     Craft,
     Recolt
 }
-[Serializable]
-public class StockItem
-{
-    public ItemRef ItemRef;
-    public int Amount;
-    public float AmountScaleNeedMin;
-    public StockItem(ItemRef itemRef, int v)
-    {
-        ItemRef = itemRef;
-        Amount = v;
-    }
-}

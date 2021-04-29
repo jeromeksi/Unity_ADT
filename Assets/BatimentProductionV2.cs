@@ -27,7 +27,7 @@ public class BatimentProductionV2 : MonoBehaviour
 
     public Shop Magasin;
 
-    public Stock Stock = new Stock();
+    private Stock Stock = new Stock();
 
     public bool IsProduct;
     public int numberWorkingEmp;

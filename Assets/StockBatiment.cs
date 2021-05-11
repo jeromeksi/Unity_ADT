@@ -1,31 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class StockBatiment : MonoBehaviour
+[Serializable]
+public class StockBatiment
 {
     public MoneyComponent MoneyComponent;
 
-    private StockV2 Stock;
+    public StockV2 Stock;
 
     public StockBatiment()
     {
         MoneyComponent = new MoneyComponent();
         Stock = new StockV2();
     }
+    public void SetStockMax( int Max)
+    {
+        Stock.stockMax = Max;
+    }
+    public StockV2 GetStock()
+    {
+        return Stock;
+    }
 
-    //private void SuppItemStock(ItemRef itemRef, int amount)
-    //{
-    //    Stock.Remove(itemRef, amount);
-    //}
-
-    //private bool CheckItemAmount(ItemRef itemRef, int amount)
-    //{
-    //    return Stock.GetNumber(itemRef) >= amount;
-    //}
-    //private void AddItemStock(ItemRef itemRef, int amount)
-    //{
-    //    Stock.Add(itemRef, amount);
-
-    //}
+    internal MoneyComponent GetMoneyComponement()
+    {
+        return MoneyComponent;
+    }
 }

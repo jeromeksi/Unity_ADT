@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class BatimentProductionV2 : MonoBehaviour
 {
-    public int NumberPosteMax;
-    public List<NPCController> List_Employe = new List<NPCController>();
+    private int NumberPosteMax;
+    private List<NPCController> List_Employe = new List<NPCController>();
 
 
     public List<ItemRef> List_ItemCreate = new List<ItemRef>();
@@ -15,19 +15,18 @@ public class BatimentProductionV2 : MonoBehaviour
     public  List<ItemCheckNeed> List_ItemNeedBuy = new List<ItemCheckNeed>();
 
     public  List<ItemCheckNeed> List_ItemNeedSell = new List<ItemCheckNeed>();
+    public BatimentProduction_Controller Controller;
 
     public bool NeedMoney;
     public Assignement MainAssignBatiment;
     
     public int StockMax;
 
-    public float Money;
 
 
+    //public Shop Magasin;
 
-    public Shop Magasin;
-
-    private Stock Stock = new Stock();
+    //private Stock Stock = new Stock();
 
     public bool IsProduct;
     public int numberWorkingEmp;
@@ -51,6 +50,20 @@ public class BatimentProductionV2 : MonoBehaviour
 
         StartCoroutine(AssignWork());
     }
+    public bool AddEmploye(NPCController nPCController)
+    {
+        if (List_Employe.Count < NumberPosteMax)
+        {
+            List_Employe.Add(nPCController);
+            return true;
+        }
+        return false;
+    }
+
+    internal void SetNumberPosteMax(int numberPosteMax)
+    {
+        NumberPosteMax = numberPosteMax;
+    }
 
     private IEnumerator AssignWork()
     {
@@ -64,22 +77,22 @@ public class BatimentProductionV2 : MonoBehaviour
             var list_itemRefBuy = new List<ItemCheckNeed>();
             foreach (var it in List_ItemNeedBuy.Where(x => x.IsCurrentActivate == false))
             {
-                var its = Stock.GetStockItems(it.ItemRef);
+                var itAmount = Controller.GetStock().GetAmount(it.ItemRef);
 
-                if (its.Amount < StockMax * 0.3f)
+                if (itAmount < StockMax * 0.3f)
                 {
 
-                    it.Amount = Convert.ToInt32(StockMax - its.Amount);
+                    it.Amount = Convert.ToInt32(StockMax - itAmount);
 
                     list_itemRefBuy.Add(it);
                     it.IsCurrentActivate = true;
                 }
-                else if (its.Amount < StockMax * 0.7f)
+                else if (itAmount < StockMax * 0.7f)
                 {
                     if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
                     {
 
-                        it.Amount = Convert.ToInt32(StockMax - its.Amount);
+                        it.Amount = Convert.ToInt32(StockMax - itAmount);
                         list_itemRefBuy.Add(it);
                         it.IsCurrentActivate = true;
                     }
@@ -93,7 +106,7 @@ public class BatimentProductionV2 : MonoBehaviour
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Buy,
                     Money = 90,
-                    Shop = Magasin
+                    Shop = Controller.GetShopLowerPriceForItem(list_itemRefBuy[0].ItemRef) //ATTENTION ICI A REFAIRE  !! !
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefBuy);
                 var emp = GetFreeNPCController();
@@ -116,19 +129,19 @@ public class BatimentProductionV2 : MonoBehaviour
             var list_itemRefSell = new List<ItemCheckNeed>();
             foreach (var it in List_ItemNeedSell.Where(x => x.IsCurrentActivate == false))
             {
-                var its = Stock.GetStockItems(it.ItemRef);
-                if (its.Amount > 0.7f * StockMax || NeedMoney && its.Amount > 0)
+                int itAmount = Controller.GetStock().GetAmount(it.ItemRef);
+                if (itAmount > 0.7f * StockMax || NeedMoney && itAmount > 0)
                 {
-                    it.Amount =  its.Amount;
+                    it.Amount = itAmount;
                     list_itemRefSell.Add(it);
                     it.IsCurrentActivate = true;
                 }
-                else if (its.Amount > 0.5f * StockMax)
+                else if (itAmount > 0.5f * StockMax)
                 {
                     if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
                     {
 
-                        it.Amount = its.Amount;
+                        it.Amount = itAmount;
                         list_itemRefSell.Add(it);
                         it.IsCurrentActivate = true;
                     }
@@ -142,7 +155,7 @@ public class BatimentProductionV2 : MonoBehaviour
                     IsMainAssignement = false,
                     TypeAssignement = TypeAssignement.Sell,
                     Money = 0,
-                    Shop = Magasin
+                    Shop = Controller.GetShopHigherPriceForItem(list_itemRefSell[0].ItemRef) //ATTENTION ICI A REFAIRE  !! !
                 };
                 v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefSell);
                 var emp = GetFreeNPCController();
@@ -191,7 +204,7 @@ public class BatimentProductionV2 : MonoBehaviour
             }
             catch(Exception ex)
             {
-                Debug.Log("Erreur : "+ ex);
+                //Debug.Log("Erreur : "+ ex);
             }
             yield return new WaitForSeconds(0.1f);
         }
@@ -216,7 +229,7 @@ public class BatimentProductionV2 : MonoBehaviour
                         }
                         if (createItem)
                         {
-                            lock (Stock)
+                            lock (Controller.GetStock())
                             {
                                 foreach (var ritem in itr.Recipe)
                                 {
@@ -246,14 +259,14 @@ public class BatimentProductionV2 : MonoBehaviour
     {
         foreach(var ita in list_StockItemWork.Where(x => x.Amount > 0))
         {
-            Stock.Add(ita);
+            Controller.GetStock().Add(ita);
             List_ItemNeedBuy.FirstOrDefault(x => x.ItemRef == ita.ItemRef).IsCurrentActivate = false;
         }
     }
 
     internal void AddMoney(float workMoney)
     {
-        Money += workMoney;
+        Controller.GetMoneyComponement().AddMoney(workMoney);
         lock (this)
         {
             NeedMoney = false;
@@ -262,10 +275,10 @@ public class BatimentProductionV2 : MonoBehaviour
 
     internal ItemAmount GetItemAmountSell(ItemAmount ita)
     {
-        var sItr = Stock.GetNumber(ita.ItemRef);
+        var sItr = Controller.GetStock().GetAmount(ita.ItemRef);
         if(sItr > 0)
         {
-            Stock.Remove(ita.ItemRef, sItr);
+            Controller.GetStock().Remove(ita.ItemRef, sItr);
             return new ItemAmount() { ItemRef = ita.ItemRef, Amount = sItr >= ita.Amount ? ita.Amount : sItr };
         }
         else
@@ -277,9 +290,9 @@ public class BatimentProductionV2 : MonoBehaviour
 
     internal float GetMoneyForAss(Assignement assT)
     {
-        if(Money >= assT.Money)
+        if(Controller.GetMoneyComponement().GetMoney() >= assT.Money)
         {
-            Money -= assT.Money;
+            Controller.GetMoneyComponement().RemoveMoney(assT.Money);
             lock (this)
             {
                 NeedMoney = false;
@@ -288,8 +301,8 @@ public class BatimentProductionV2 : MonoBehaviour
         }
         else
         {
-            var moneyT = Money;
-            Money -= Money;
+            var moneyT = Controller.GetMoneyComponement().GetMoney();
+            Controller.GetMoneyComponement().RemoveMoney(moneyT);
             lock (this)
             {
                 NeedMoney = true;
@@ -301,16 +314,16 @@ public class BatimentProductionV2 : MonoBehaviour
 
     private void SuppItemStock(ItemRef itemRef, int amount)
     {
-        Stock.Remove(itemRef, amount);
+        Controller.GetStock().Remove(itemRef, amount);
     }
 
     private bool CheckItemAmount(ItemRef itemRef, int amount)
     {
-        return Stock.GetNumber(itemRef) >= amount;
+        return Controller.GetStock().GetAmount(itemRef) >= amount;
     }
     private void AddItemStock(ItemRef itemRef, int amount)
     {
-        Stock.Add(itemRef, amount);
+        Controller.GetStock().Add(itemRef, amount);
 
     }
     internal void AssignEnd(Assignement assignementV2, bool succed)
@@ -362,7 +375,7 @@ public class BatimentProductionV2 : MonoBehaviour
         }
         foreach (var itr in ItemNeed)
         {
-            Stock.Add(new ItemAmount(itr));
+            Controller.GetStock().Add(new ItemAmount(itr));
         }
     }   
 }

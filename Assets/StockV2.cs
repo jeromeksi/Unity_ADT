@@ -2,35 +2,80 @@
 using System;
 using System.Collections.Generic;
 
+[Serializable]
 public class StockV2
 {
     public int stockMax;
     private List<StockItem> List_StockItem = new List<StockItem>();
 
-    //TODO - ici
-    //public bool Add(ItemRef itemRef, int Amoount)
-    //{
-    //    var its = List_StockItem.Find(x=> x.ItemRef == itemRef);
-    //    if (its != null)
-    //    {
-    //        var SpaceFree = GetSpaceFree();
+    public bool Add(ItemRef itemRef, int Amoount, bool forceAdd = true)
+    {
+        var its = List_StockItem.Find(x => x.ItemRef == itemRef);
+        if (its != null)
+        {
+            var SpaceFree = GetSpaceFree();
 
-    //        if(SpaceFree > Amoount)
-    //        {
-    //            its.Amount += Amoount;
-    //        }
-    //        else
-    //        {
+            if (SpaceFree > Amoount)
+            {
+                its.Amount += Amoount;
+            }
+            else
+            {
+                if(forceAdd)
+                    its.Amount += Amoount;
+            }
+        }
+        else
+        {
+            InitAdd(itemRef, Amoount);
+        }
+        return true;
 
-    //        }
-    //    }
-    //    else
-    //    {
-    //        //init
-    //    }
-        
-    //}
+    }
+    public bool Remove(ItemRef itemRef, int Amoount, bool exact = false)
+    {
 
+        var its = List_StockItem.Find(x => x.ItemRef == itemRef);
+        if(its != null)
+        {
+            if(exact)
+            {
+                if (its.Amount >= Amoount)
+                {
+                    its.Amount -= Amoount;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (its.Amount >= Amoount)
+                {
+                    its.Amount -= Amoount;
+                }
+                else
+                {
+                    its.Amount = 0;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    public int GetAmount(ItemRef itemRef)
+    {
+        var it = List_StockItem.Find(x => x.ItemRef == itemRef);
+        if (it != null)
+            return it.Amount;
+        return 0;
+    }
+    private void InitAdd(ItemRef itemRef, int Amoount)
+    {
+        List_StockItem.Add(new StockItem(itemRef, Amoount));
+    }
     public int GetSpaceFree()
     {
         return stockMax - GetSpaceUse();
@@ -45,6 +90,11 @@ public class StockV2
         }
         return spaceUse;
     }
+
+    internal bool Add(ItemAmount ita, bool forceAdd = true)
+    {
+         return Add(ita.ItemRef, ita.Amount, forceAdd);
+    }
 }
 
 [Serializable]
@@ -58,3 +108,11 @@ public class StockItem
         Amount = v;
     }
 }
+//public class OutOfSpaceException : Exception
+//{
+//    public StockV2 stockV2;    
+//    public OutOfSpaceException(StockV2 v)
+//    {
+//        stockV2 = v;
+//    }
+//}

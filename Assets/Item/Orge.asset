@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61fca022613ca3944829c4465143f5e5, type: 3}
-  m_Name: "Bl\xE9"
+  m_Name: Orge
   m_EditorClassIdentifier: 
   ID: 1
-  Name: "Bl\xE9"
+  Name: Orge
   baseWorkingNeed: 10
   AmountByWorking: 5
   BasePrice: 10

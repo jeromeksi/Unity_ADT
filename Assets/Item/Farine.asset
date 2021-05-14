@@ -9,16 +9,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f941c7226db258479e3420ff5acc96c, type: 3}
+  m_Script: {fileID: 11500000, guid: 61fca022613ca3944829c4465143f5e5, type: 3}
   m_Name: Farine
   m_EditorClassIdentifier: 
   ID: 2
   Name: Farine
-  baseTimeProduct: 10
-  baseWorkingNeed: 30
+  baseWorkingNeed: 5
   AmountByWorking: 1
   BasePrice: 0
   TypeCreate: 0
   Recipe:
-  - ItemRef: {fileID: 11400000, guid: ceba1e74ff81db744b22410d0c216269, type: 2}
+  - ItemRef: {fileID: 11400000, guid: c6fe2b8ce92d7304abbc9a0e270ad1f4, type: 2}
+    Amount: 5
+  - ItemRef: {fileID: 11400000, guid: 174ae0efa51c40246b49ce66a2fa11d7, type: 2}
     Amount: 5

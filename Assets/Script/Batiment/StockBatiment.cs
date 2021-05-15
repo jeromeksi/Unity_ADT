@@ -2,29 +2,38 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-[Serializable]
-public class StockBatiment
+
+namespace Batiment
 {
-    public MoneyComponent MoneyComponent;
+    [Serializable]
+    public class StockBatiment
+    {
+        private MoneyComponent MoneyComponent;
+        private Stock Stock;
 
-    public Stock Stock;
+        public StockBatiment()
+        {
+            MoneyComponent = new MoneyComponent();
+            Stock = new Stock();
+        }
+        public void SetStockMax(int Max)
+        {
+            Stock.stockMax = Max;
+        }
+        public Stock GetStock()
+        {
+            return Stock;
+        }
 
-    public StockBatiment()
-    {
-        MoneyComponent = new MoneyComponent();
-        Stock = new Stock();
-    }
-    public void SetStockMax( int Max)
-    {
-        Stock.stockMax = Max;
-    }
-    public Stock GetStock()
-    {
-        return Stock;
+        internal MoneyComponent GetMoneyComponement()
+        {
+            return MoneyComponent;
+        }
+
+        internal int GetStockMax()
+        {
+            return Stock.stockMax;
+        }
     }
 
-    internal MoneyComponent GetMoneyComponement()
-    {
-        return MoneyComponent;
-    }
 }

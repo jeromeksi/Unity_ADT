@@ -3,13 +3,13 @@
 [Serializable]
 public class MoneyComponent
 {
-    private float Money;
+    private int Money;
 
-    public void AddMoney(float mon)
+    public void AddMoney(int mon)
     {
         Money += mon;
     }
-    public bool RemoveMoney(float mon)
+    public bool RemoveMoney(int mon)
     {
         if (mon > Money)
             return false;
@@ -23,7 +23,7 @@ public class MoneyComponent
     {
         return Money > mon;
     }
-    public float GetMoney()
+    public int GetMoney()
     {
         return Money;
     }

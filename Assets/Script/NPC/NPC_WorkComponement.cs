@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Batiment.BatimentProduction;
+using Batiment.BatimentProduction.Util;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Util;
 
 public class NPC_WorkComponement : MonoBehaviour
 {
@@ -12,7 +15,7 @@ public class NPC_WorkComponement : MonoBehaviour
     private NPCController NPCController;
     public bool DoMainAssignement;
     public bool DoSecAssignement;
-    public float WorkMoney;
+    public int WorkMoney;
     public List<ItemAmount> List_StockItemWork = new List<ItemAmount>();
     private void Start()
     {

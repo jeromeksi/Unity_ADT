@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Batiment.BatimentProduction.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +12,7 @@ public class Memory_ItemComponent
     {
         MemoryItems = new List<MemoryItem>();
     }
-    public void Add(ItemRef itemRef, Shop shop, float? price, float? distance)
+    public void Add(ItemRef itemRef, Shop shop, int? price, float? distance)
     {
         var mi = MemoryItems.Find(x => x.ItemRef == itemRef);
         if (mi != null)
@@ -69,7 +70,7 @@ public class MemoryItem
     {
         ItemRef = _ItemRef;
     }
-    public void AddInfo(Shop _shop, float? _price, float? _distance)
+    public void AddInfo(Shop _shop, int? _price, float? _distance)
     {
         var si = List_ShopInfo.Find(x => x.Shop == _shop);
         if(si != null)
@@ -106,6 +107,6 @@ public class MemoryItem
 public class ShopInfo
 {
     public Shop Shop;
-    public float? Price;
+    public int? Price;
     public float? Distance;
 }

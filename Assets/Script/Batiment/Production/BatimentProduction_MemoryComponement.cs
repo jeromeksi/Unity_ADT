@@ -3,16 +3,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public class BatimentProduction_MemoryComponement 
+namespace Batiment.BatimentProduction
 {
-    public Memory_ItemComponent memoryItem;
-    public BatimentProduction_MemoryComponement()
+    [Serializable]
+    public class BatimentProduction_MemoryComponement
     {
-        memoryItem = new Memory_ItemComponent();
+        public Memory_ItemComponent memoryItem;
+        public BatimentProduction_MemoryComponement()
+        {
+            memoryItem = new Memory_ItemComponent();
+        }
+        internal Memory_ItemComponent GetMemoryItemComponent()
+        {
+            return memoryItem;
+        }
     }
-    internal Memory_ItemComponent GetMemoryItemComponent()
-    {
-        return memoryItem;
-    }
+
 }

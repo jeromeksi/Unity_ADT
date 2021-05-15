@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public static class Util
+public static class Util_tool
 {
 
     public static bool CheckIsArrived(Vector3 selfPos, NavMeshAgent agent)

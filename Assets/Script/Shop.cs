@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Batiment.BatimentProduction;
+using Batiment.BatimentProduction.Util;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Util;
 
 public class Shop : MonoBehaviour
 {
@@ -32,15 +35,15 @@ public class Shop : MonoBehaviour
     }
     public Transaction BuyItem(ItemRef it, float amount)
     {
-        float? priceItem = PriceForItem(it);
+        int? priceItem = PriceForItem(it);
         Transaction ret = null;
 
         if(priceItem.HasValue)
         {
             ret = new Transaction()
-            {                
+            {
                 ItemAmount = new ItemAmount(it),
-                Money = priceItem.Value * amount                
+                Money = Convert.ToInt32(priceItem.Value * amount)
             };
         }
         return ret;
@@ -111,7 +114,7 @@ public class Shop : MonoBehaviour
 public class Transaction
 {
     public ItemAmount ItemAmount;
-    public float Money;
+    public int Money;
 }
 [Serializable]
 public class ItemPrice

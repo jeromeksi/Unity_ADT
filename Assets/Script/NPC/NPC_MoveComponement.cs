@@ -26,7 +26,7 @@ public class NPC_MoveComponement : MonoBehaviour
 
     internal IEnumerator CheckArrive()
     {
-        while (!Util.CheckIsArrived(this.transform.position, agent))
+        while (!Util_tool.CheckIsArrived(this.transform.position, agent))
         {
             yield return new WaitForSeconds(0.1f);
         }

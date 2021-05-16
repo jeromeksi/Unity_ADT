@@ -1,4 +1,5 @@
-﻿using Batiment.BatimentProduction.Util;
+﻿using Assets.Script.Batiment.Assignement_Work;
+using Batiment.BatimentProduction.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ public class NPCController : MonoBehaviour
     private NPC_WorkComponement WorkComponement;
     private NPC_MoveComponement MoveComponement;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         MoveComponement = GetComponent<NPC_MoveComponement>();
         WorkComponement = GetComponent<NPC_WorkComponement>();
@@ -46,6 +47,11 @@ public class NPCController : MonoBehaviour
     internal bool Work_HadMainAssing()
     {
         return WorkComponement.HadMainAssing();
+    }
+
+    internal NPC_WorkComponement GetWorkComponent()
+    {
+        return WorkComponement;
     }
 
     internal int CountSecAssign()

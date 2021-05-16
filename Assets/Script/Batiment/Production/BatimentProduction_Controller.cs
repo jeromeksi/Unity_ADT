@@ -41,10 +41,14 @@ namespace Batiment.BatimentProduction
             TryGetComponent<BatimentProduction_WorkComponent>(out BatimentProductionV2);
 
             BatimentProductionV2.Controller = this;
+
+        }
+
+        public void Start()
+        {
             if (InitComponent != null)
                 InitForTest();
         }
-
         public void InitForTest()
         {
             //init stock

@@ -1,4 +1,5 @@
-﻿using Batiment.BatimentProduction.Util;
+﻿using Assets.Script.Batiment.Assignement_Work;
+using Batiment.BatimentProduction.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -22,7 +23,6 @@ namespace Batiment.BatimentProduction
         public BatimentProduction_Controller Controller;
 
         public bool NeedMoney;
-        public Assignement MainAssignBatiment;
 
 
 
@@ -31,32 +31,46 @@ namespace Batiment.BatimentProduction
         //private Stock Stock = new Stock();
 
         public bool IsProduct;
-        public int numberWorkingEmp;
+
         public int numberEmpReadyProduct;
 
         void Start()
         {
             InitStock();
             IsProduct = true;
-            StartCoroutine(CalculatePercent());
 
-            foreach (var itc in List_ItemCreate)
-            {
+            StartCoroutine(RoutineProdItemCreate());
 
-                StartCoroutine(RoutineProdItemCreate(itc));
-            }
-
-            MainAssignBatiment = new Assignement(this);
-            MainAssignBatiment.IsMainAssignement = true;
-            MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
 
             StartCoroutine(AssignWork());
         }
+
+        public void AssignMainWork_ByEmp()
+        {
+            foreach(var emp in List_Employe)
+            {
+
+                BatimentProduction_Work MainAssignBatiment = new BatimentProduction_Work();
+                MainAssignBatiment.Pos_BatimentProduction = this.transform.position;
+                MainAssignBatiment.IsMainAssignement = true;
+                MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
+
+                emp.Assign(MainAssignBatiment);
+            }
+        }
+
         public bool AddEmploye(NPCController nPCController)
         {
             if (List_Employe.Count < NumberPosteMax)
             {
                 List_Employe.Add(nPCController);
+
+                BatimentProduction_Work MainAssignBatiment = new BatimentProduction_Work();
+                MainAssignBatiment.Pos_BatimentProduction = this.transform.position;
+                MainAssignBatiment.IsMainAssignement = true;
+                MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
+
+                nPCController.Set_MainAssign(MainAssignBatiment);
                 return true;
             }
             return false;
@@ -91,7 +105,7 @@ namespace Batiment.BatimentProduction
                     }
                     else if (itAmount < StockMax * 0.7f)
                     {
-                        if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
+                        if (List_Employe.Count(x => x.IsWorking && x.IsDoMainAssign()) / NumberPosteMax > 0.7f)
                         {
 
                             it.Amount = Convert.ToInt32(StockMax - itAmount);
@@ -117,7 +131,7 @@ namespace Batiment.BatimentProduction
                             TotalMoneyAss = irb.Amount * PriceForItem.Value;
 
                             TotalMoneyNeed += TotalMoneyAss;
-                            var ass = list_Ass.Find(x => x.Shop == Shop);
+                            Buy ass = (Buy)list_Ass.Find(x => ((Buy)x).Shop == Shop);
                             if (ass != null)
                             {
                                 ass.List_Item.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(irb));
@@ -126,12 +140,13 @@ namespace Batiment.BatimentProduction
                             else
                             {
 
-                                var v = new Assignement(this)
+                                var v = new Buy()
                                 {
                                     IsMainAssignement = false,
                                     TypeAssignement = TypeAssignement.Buy,
                                     Money = TotalMoneyAss,
-                                    Shop = Shop
+                                    Shop = Shop,
+                                    BatimentProduction = this
                                 };
                                 v.List_Item.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(irb));
                                 list_Ass.Add(v);
@@ -172,7 +187,6 @@ namespace Batiment.BatimentProduction
                     {
                         foreach (var assT in list_Ass)
                         {
-
                             AssignEnd(assT, false);
                         }
                     }
@@ -197,7 +211,7 @@ namespace Batiment.BatimentProduction
                     }
                     else if (itAmount > 0.5f * StockMax)
                     {
-                        if (numberEmpReadyProduct / NumberPosteMax > 0.7f)
+                        if (List_Employe.Count(x => x.IsWorking && x.IsDoMainAssign()) / NumberPosteMax > 0.7f)
                         {
 
                             it.Amount = itAmount;
@@ -209,12 +223,13 @@ namespace Batiment.BatimentProduction
 
                 if (list_itemRefSell.Count > 0)
                 {
-                    var v = new Assignement(this)
+                    var v = new Sell()
                     {
                         IsMainAssignement = false,
+                        BatimentProduction = this,
                         TypeAssignement = TypeAssignement.Sell,
                         Money = 0,
-                        Shop = Controller.GetShopHigherPriceForItem(list_itemRefSell[0].ItemRef) //ATTENTION ICI A REFAIRE  !! !
+                        Shop = Controller.GetShopHigherPriceForItem(list_itemRefSell[0].ItemRef) //ATTENTION ICI A REFAIRE  !! ! oui oui on veux que le premier au plus chère
                     };
                     v.List_Item = ItemCheckNeed.ConvertList_ItemBuy_to_ItemAmount(list_itemRefSell);
                     var emp = GetFreeNPCController();
@@ -230,13 +245,16 @@ namespace Batiment.BatimentProduction
                 }
 
                 //Assign le reste a Production
-                foreach (var emp in List_Employe)
-                {
-                    emp.Set_MainAssign(MainAssignBatiment);
-                }
+                //foreach (var emp in List_Employe)
+                //{
+                //    emp.Set_MainAssign(MainAssignBatiment);
+                //}
                 yield return new WaitForSeconds(1f);
             }
         }
+
+
+
         public NPCController GetFreeNPCController()
         {
             NPCController ret = null;
@@ -252,65 +270,52 @@ namespace Batiment.BatimentProduction
 
 
         }
-        private IEnumerator CalculatePercent()
-        {
-            while (IsProduct)
-            {
-                try
-                {
-                    numberWorkingEmp = List_Employe.Count(x => x.IsWorking);
-                    numberEmpReadyProduct = List_Employe.Count(x => x.IsWorking && x.IsDoMainAssign());
-                }
-                catch (Exception ex)
-                {
-                    //Debug.Log("Erreur : "+ ex);
-                }
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
-
-        private IEnumerator RoutineProdItemCreate(ItemRef itr)
+    
+        private IEnumerator RoutineProdItemCreate()
         {
             float etatWork = 0;
             while (IsProduct)
             {
-                bool createItem = true;
-                switch (itr.TypeCreate)
+                foreach(var itr in List_ItemCreate)
                 {
-                    case TypeCreate.Craft:
+                    bool createItem = true;
+                    switch (itr.TypeCreate)
+                    {
+                        case TypeCreate.Craft:
 
-                        foreach (var ritem in itr.Recipe)
-                        {
-                            if (!CheckItemAmount(ritem.ItemRef, ritem.Amount))
+                            foreach (var ritem in itr.Recipe)
                             {
-                                createItem = false;
-                            }
-                        }
-                        if (createItem)
-                        {
-                            lock (Controller.GetStock())
-                            {
-                                foreach (var ritem in itr.Recipe)
+                                if (!CheckItemAmount(ritem.ItemRef, ritem.Amount))
                                 {
-                                    SuppItemStock(ritem.ItemRef, ritem.Amount);
+                                    createItem = false;
                                 }
                             }
-                        }
-                        break;
-                }
-                if (createItem)
-                {
-                    while (etatWork < itr.baseWorkingNeed)
-                    {
-                        yield return new WaitForSeconds(0.1f);
-                        etatWork += (numberEmpReadyProduct / 10.0f);
+                            if (createItem)
+                            {
+                                lock (Controller.GetStock())
+                                {
+                                    foreach (var ritem in itr.Recipe)
+                                    {
+                                        SuppItemStock(ritem.ItemRef, ritem.Amount);
+                                    }
+                                }
+                            }
+                            break;
                     }
-                    AddItemStock(itr, itr.AmountByWorking);
+                    if (createItem)
+                    {
+                        while (etatWork < itr.baseWorkingNeed)
+                        {
+                            yield return new WaitForSeconds(0.1f);
+                            etatWork += (List_Employe.Count(x => x.IsWorking && x.IsDoMainAssign()) / 10.0f);
+                        }
+                        AddItemStock(itr, itr.AmountByWorking);
 
-                }
-                etatWork = 0;
-                Debug.Log("ici");
-                yield return new WaitForSeconds(0.1f);
+                    }
+                    etatWork = 0;
+                    //Debug.Log("ici");
+                    yield return new WaitForSeconds(0.1f);
+                }               
             }
         }
 
@@ -347,16 +352,17 @@ namespace Batiment.BatimentProduction
 
         }
 
-        internal int GetMoneyForAss(Assignement assT)
+
+        internal int GetMoneyForAss(Buy buy)
         {
-            if (Controller.GetMoneyComponement().GetMoney() >= assT.Money)
+            if (Controller.GetMoneyComponement().GetMoney() >= buy.Money)
             {
-                Controller.GetMoneyComponement().RemoveMoney(assT.Money);
+                Controller.GetMoneyComponement().RemoveMoney(buy.Money);
                 lock (this)
                 {
                     NeedMoney = false;
                 }
-                return assT.Money;
+                return buy.Money;
             }
             else
             {
@@ -370,6 +376,7 @@ namespace Batiment.BatimentProduction
 
             }
         }
+
 
         private void SuppItemStock(ItemRef itemRef, int amount)
         {
@@ -385,22 +392,20 @@ namespace Batiment.BatimentProduction
             Controller.GetStock().Add(itemRef, amount);
 
         }
-        internal void AssignEnd(Assignement assignementV2, bool succed)
+       
+        internal void AssignEnd(Assignement work, bool succed)
         {
-            switch (assignementV2.TypeAssignement)
+            switch (work.TypeAssignement)
             {
                 case TypeAssignement.Buy:
-                    DesactivateAll(assignementV2.List_Item, List_ItemNeedBuy);
+                    DesactivateAll(((Buy)work).List_Item, List_ItemNeedBuy);
                     break;
                 case TypeAssignement.Sell:
-                    DesactivateAll(assignementV2.List_Item, List_ItemNeedSell);
+                    DesactivateAll(((Sell)work).List_Item, List_ItemNeedSell);
                     break;
             }
-            foreach (var usi in assignementV2.List_UpdateShopInfo)
-            {
-                Controller.AddMemoryInfo(usi);
-            }
         }
+
         private void DesactivateAll(List<ItemAmount> lista, List<ItemCheckNeed> lisNeed)
         {
             foreach (var it in lista)

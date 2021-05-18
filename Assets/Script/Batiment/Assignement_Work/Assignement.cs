@@ -1,5 +1,4 @@
 ﻿using Batiment.BatimentProduction;
-using Batiment.BatimentProduction.Util;
 using Batiment.BatimentVente;
 using System;
 using System.Collections;
@@ -35,16 +34,16 @@ namespace Assets.Script.Batiment.Assignement_Work
         public bool IsMainAssignement;
         public BatimentProduction_WorkComponent BatimentProduction;
 
-        public Shop Shop;
-        public Vector3 Destination;
-        public List<UpdateShopInfo> List_UpdateShopInfo = new List<UpdateShopInfo>();
+        public BatimentVente_Controller Shop;
+        public Vector3 Pos_Batiment;
+        public List<InfoItemRef> List_UpdateShopInfo = new List<InfoItemRef>();
 
         public int Money;
         public List<ItemAmount> List_Item = new List<ItemAmount>();
 
         public override IEnumerator DoWork()
         {
-            NPCController.SetDestination(BatimentProduction.gameObject.transform.position);
+            NPCController.SetDestination(Pos_Batiment);
 
 
             yield return NPCController.CheckArrive();
@@ -66,24 +65,27 @@ namespace Assets.Script.Batiment.Assignement_Work
 
 
                 //Vendre ou Buy
-                
-                foreach (var ita in List_Item)
+                if(Shop.GetCanShop())
                 {
 
-                    var trasact = Shop.SellItem(ita, WorkComponement.WorkMoney);
-                    if (trasact != null)
+                    foreach (var ita in List_Item)
                     {
-                        WorkComponement.List_StockItemWork.Add(trasact.ItemAmount);
-                        WorkComponement.WorkMoney -= trasact.Money;
+                        var trasact = Shop.SellItem(NPCController, ita.ItemRef, ita.Amount, WorkComponement.WorkMoney);
+                        if (trasact != null)
+                        {
+                            WorkComponement.List_StockItemWork.Add(new ItemAmount(trasact.ItemRef, trasact.Amount));
+                            WorkComponement.WorkMoney -= trasact.Money;
+                        }
                     }
+                    List_UpdateShopInfo = Shop.GetAllItemPrice(NPCController);
                 }
-              
-                List_UpdateShopInfo = Shop.GetAllItemPrice();
+
+
 
 
                 //Goto Bat
 
-                NPCController.SetDestination(BatimentProduction.gameObject.transform.position);
+                NPCController.SetDestination(Pos_Batiment);
 
 
                 yield return NPCController.CheckArrive();
@@ -115,17 +117,18 @@ namespace Assets.Script.Batiment.Assignement_Work
 
         public bool IsMainAssignement;
         public BatimentProduction_WorkComponent BatimentProduction;
+        public Vector3 Pos_Batiment;
 
-        public Shop Shop;
+        public BatimentVente_Controller Shop;
         public Vector3 Destination;
-        public List<UpdateShopInfo> List_UpdateShopInfo = new List<UpdateShopInfo>();
+        public List<InfoItemRef> List_UpdateShopInfo = new List<InfoItemRef>();
 
         public int Money;
         public List<ItemAmount> List_Item = new List<ItemAmount>();
 
         public override IEnumerator DoWork()
         {
-            NPCController.SetDestination(BatimentProduction.gameObject.transform.position);
+            NPCController.SetDestination(Pos_Batiment);
 
 
             yield return NPCController.CheckArrive();
@@ -142,7 +145,7 @@ namespace Assets.Script.Batiment.Assignement_Work
             }
                 
 
-            if (WorkComponement.WorkMoney > 0 || WorkComponement.List_StockItemWork.Count > 0)
+            if (WorkComponement.List_StockItemWork.Count > 0)
             {
 
                 //GO to shop
@@ -156,7 +159,7 @@ namespace Assets.Script.Batiment.Assignement_Work
                
                 foreach (var ita in WorkComponement.List_StockItemWork)
                 {
-                    var transact = Shop.BuyItem(ita.ItemRef, ita.Amount);
+                    var transact = Shop.BuyItem(NPCController, ita.ItemRef, ita.Amount);
                     if (transact != null)
                     {
                         WorkComponement.WorkMoney += transact.Money;
@@ -164,12 +167,12 @@ namespace Assets.Script.Batiment.Assignement_Work
                     }
                 }
                    
-                List_UpdateShopInfo = Shop.GetAllItemPrice();
+                List_UpdateShopInfo = Shop.GetAllItemPrice(NPCController);
 
 
                 //Goto Bat
 
-                NPCController.SetDestination(BatimentProduction.gameObject.transform.position);
+                NPCController.SetDestination(Pos_Batiment);
 
 
                 yield return NPCController.CheckArrive();

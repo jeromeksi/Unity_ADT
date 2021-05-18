@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Batiment.BatimentVente;
+using System;
 using UnityEngine;
 
 
@@ -17,7 +18,7 @@ namespace Batiment.BatimentProduction
             Controller = batimentProduction_Controller;
         }
 
-        public Shop GetShopHigherPriceForItem(ItemRef itemRef)
+        public BatimentVente_Controller GetShopHigherPriceForItem(ItemRef itemRef)
         {
             var mc = Controller.GetMemoryComponement();
 
@@ -26,20 +27,20 @@ namespace Batiment.BatimentProduction
             if (mi != null)
             {
                 float price = -1;
-                Shop shopRet = null;
+                BatimentVente_Controller shopRet = null;
                 foreach (var shopInfo in mi.List_ShopInfo)
                 {
-                    if (shopInfo.Price.HasValue && shopInfo.Price.Value > price)
+                    if (shopInfo.PriceSell.HasValue && shopInfo.PriceSell.Value > price)
                     {
                         shopRet = shopInfo.Shop;
-                        price = shopInfo.Price.Value;
+                        price = shopInfo.PriceSell.Value;
                     }
                 }
                 return shopRet;
             }
             return null;
         }
-        public Shop GetShopLowerPriceForItem(ItemRef itemRef)
+        public BatimentVente_Controller GetShopLowerPriceForItem(ItemRef itemRef)
         {
             var mc = Controller.GetMemoryComponement();
 
@@ -48,13 +49,13 @@ namespace Batiment.BatimentProduction
             if (mi != null)
             {
                 float price = Mathf.Infinity;
-                Shop shopRet = null;
+                BatimentVente_Controller shopRet = null;
                 foreach (var shopInfo in mi.List_ShopInfo)
                 {
-                    if (shopInfo.Price.HasValue && shopInfo.Price.Value < price)
+                    if (shopInfo.PriceBuy.HasValue && shopInfo.PriceBuy.Value < price)
                     {
                         shopRet = shopInfo.Shop;
-                        price = shopInfo.Price.Value;
+                        price = shopInfo.PriceBuy.Value;
                     }
                 }
                 return shopRet;
@@ -73,9 +74,9 @@ namespace Batiment.BatimentProduction
                 int price = int.MaxValue;
                 foreach (var shopInfo in mi.List_ShopInfo)
                 {
-                    if (shopInfo.Price.HasValue && shopInfo.Price.Value < price)
+                    if (shopInfo.PriceSell.HasValue && shopInfo.PriceSell.Value < price)
                     {
-                        price = shopInfo.Price.Value;
+                        price = shopInfo.PriceSell.Value;
                     }
                 }
                 return price;

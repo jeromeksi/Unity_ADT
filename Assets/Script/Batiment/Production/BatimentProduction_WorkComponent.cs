@@ -1,5 +1,4 @@
 ﻿using Assets.Script.Batiment.Assignement_Work;
-using Batiment.BatimentProduction.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +8,8 @@ using Util;
 
 namespace Batiment.BatimentProduction
 {
-    public class BatimentProduction_WorkComponent : MonoBehaviour
+    [Serializable]
+    public class BatimentProduction_WorkComponent 
     {
         private int NumberPosteMax;
         private List<NPCController> List_Employe = new List<NPCController>();
@@ -30,20 +30,7 @@ namespace Batiment.BatimentProduction
 
         //private Stock Stock = new Stock();
 
-        public bool IsProduct;
-
         public int numberEmpReadyProduct;
-
-        void Start()
-        {
-            InitStock();
-            IsProduct = true;
-
-            StartCoroutine(RoutineProdItemCreate());
-
-
-            StartCoroutine(AssignWork());
-        }
 
         public void AssignMainWork_ByEmp()
         {
@@ -51,7 +38,7 @@ namespace Batiment.BatimentProduction
             {
 
                 BatimentProduction_Work MainAssignBatiment = new BatimentProduction_Work();
-                MainAssignBatiment.Pos_BatimentProduction = this.transform.position;
+                MainAssignBatiment.Pos_BatimentProduction = Controller.transform.position;
                 MainAssignBatiment.IsMainAssignement = true;
                 MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
 
@@ -66,7 +53,7 @@ namespace Batiment.BatimentProduction
                 List_Employe.Add(nPCController);
 
                 BatimentProduction_Work MainAssignBatiment = new BatimentProduction_Work();
-                MainAssignBatiment.Pos_BatimentProduction = this.transform.position;
+                MainAssignBatiment.Pos_BatimentProduction = Controller.transform.position;
                 MainAssignBatiment.IsMainAssignement = true;
                 MainAssignBatiment.TypeAssignement = TypeAssignement.Work;
 
@@ -81,11 +68,11 @@ namespace Batiment.BatimentProduction
             NumberPosteMax = numberPosteMax;
         }
 
-        private IEnumerator AssignWork()
+        public IEnumerator AssignWork()
         {
 
             yield return new WaitForSeconds(1f);
-            while (IsProduct)
+            while (Controller.BatIsActive())
             {
                 var list_EmpWorking = List_Employe.Where(x => x.IsWorking).ToList();
 
@@ -146,6 +133,7 @@ namespace Batiment.BatimentProduction
                                     TypeAssignement = TypeAssignement.Buy,
                                     Money = TotalMoneyAss,
                                     Shop = Shop,
+                                    Pos_Batiment = Controller.transform.position,
                                     BatimentProduction = this
                                 };
                                 v.List_Item.Add(ItemCheckNeed.Convert_ItemBuy_to_ItemAmount(irb));
@@ -228,6 +216,7 @@ namespace Batiment.BatimentProduction
                         IsMainAssignement = false,
                         BatimentProduction = this,
                         TypeAssignement = TypeAssignement.Sell,
+                        Pos_Batiment = Controller.transform.position,
                         Money = 0,
                         Shop = Controller.GetShopHigherPriceForItem(list_itemRefSell[0].ItemRef) //ATTENTION ICI A REFAIRE  !! ! oui oui on veux que le premier au plus chère
                     };
@@ -271,10 +260,10 @@ namespace Batiment.BatimentProduction
 
         }
     
-        private IEnumerator RoutineProdItemCreate()
+        public IEnumerator RoutineProdItemCreate()
         {
             float etatWork = 0;
-            while (IsProduct)
+            while (Controller.BatIsActive())
             {
                 foreach(var itr in List_ItemCreate)
                 {
@@ -315,7 +304,8 @@ namespace Batiment.BatimentProduction
                     etatWork = 0;
                     //Debug.Log("ici");
                     yield return new WaitForSeconds(0.1f);
-                }               
+                }
+                yield return new WaitForSeconds(0.1f);
             }
         }
 
@@ -417,7 +407,7 @@ namespace Batiment.BatimentProduction
                 }
             }
         }
-        private void InitStock()
+        public void InitStock()
         {
             List<ItemRef> ItemNeed = new List<ItemRef>();
             foreach (var it in List_ItemCreate)

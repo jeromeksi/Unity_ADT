@@ -1,5 +1,4 @@
 ﻿using Assets.Script.Batiment.Assignement_Work;
-using Batiment.BatimentProduction.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -36,17 +35,19 @@ public class NPCController : MonoBehaviour
 
     internal void Assign(Assignement assignementV2)
     {
-        WorkComponement.AssignSec(assignementV2);
+            WorkComponement?.AssignSec(assignementV2); 
     }
 
     internal void Set_MainAssign(Assignement MainAssignement)
     {
-        WorkComponement.Set_MainAssign(MainAssignement);
+        WorkComponement?.Set_MainAssign(MainAssignement);
     }
 
     internal bool Work_HadMainAssing()
     {
-        return WorkComponement.HadMainAssing();
+        if(WorkComponement != null)
+            return WorkComponement.HadMainAssing();
+        return false;
     }
 
     internal NPC_WorkComponement GetWorkComponent()

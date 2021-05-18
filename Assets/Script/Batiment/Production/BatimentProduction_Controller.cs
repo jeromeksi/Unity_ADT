@@ -1,5 +1,5 @@
 ﻿using Batiment;
-using Batiment.BatimentProduction.Util;
+using Batiment.BatimentVente;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,13 +10,12 @@ using UnityEngine;
 
 namespace Batiment.BatimentProduction
 {
-    [RequireComponent(typeof(BatimentProduction_WorkComponent))]
     public class BatimentProduction_Controller : MonoBehaviour
     {
 
-        private BatimentProduction_WorkComponent BatimentProductionV2;
+        public BatimentProduction_WorkComponent WorkComponent;
 
-        private Shop Shop;
+        private BatimentVente_Controller Shop;
         public StockBatiment StockBatiment;
 
         public BatimentProduction_MemoryComponement MemoryComponement;
@@ -24,6 +23,26 @@ namespace Batiment.BatimentProduction
 
         public BatimentProduction_InitComponent InitComponent;
 
+        private bool IsActive;
+
+        internal bool BatIsActive()
+        {
+            return IsActive;
+        }
+
+
+        public void ActiveBatiment()
+        {
+            IsActive = true;
+            StartCoroutine(WorkComponent.RoutineProdItemCreate());
+            StartCoroutine(WorkComponent.AssignWork());
+        }
+        public void DisactiveBatiment()
+        {
+            IsActive = false;
+            StopCoroutine(WorkComponent.RoutineProdItemCreate());
+            StopCoroutine(WorkComponent.AssignWork());
+        }
 
 
         internal BatimentProduction_MemoryComponement GetMemoryComponement()
@@ -36,18 +55,26 @@ namespace Batiment.BatimentProduction
             StockBatiment = new StockBatiment();
             MemoryComponement = new BatimentProduction_MemoryComponement();
             DecisionComponement = new BatimentProduction_DecisionComponement(this);
-            TryGetComponent<Shop>(out Shop);
+            TryGetComponent<BatimentVente_Controller>(out Shop);
             TryGetComponent<BatimentProduction_InitComponent>(out InitComponent);
-            TryGetComponent<BatimentProduction_WorkComponent>(out BatimentProductionV2);
-
-            BatimentProductionV2.Controller = this;
+            WorkComponent = new BatimentProduction_WorkComponent();
+            WorkComponent.Controller = this;
 
         }
 
         public void Start()
         {
-            if (InitComponent != null)
-                InitForTest();
+
+        }
+        public bool StartInit;
+        public void Update()
+        {
+            if(StartInit)
+            {
+                if (InitComponent != null)
+                    InitForTest();
+                StartInit = false;
+            }
         }
         public void InitForTest()
         {
@@ -56,26 +83,40 @@ namespace Batiment.BatimentProduction
             StockBatiment.GetMoneyComponement().AddMoney(InitComponent.MoneyStart);
 
             //BatimentProductionV2
-            BatimentProductionV2.SetNumberPosteMax(InitComponent.NumberPosteMax);
+            WorkComponent.SetNumberPosteMax(InitComponent.NumberPosteMax);
             foreach (var emp in InitComponent.List_Employe)
             {
-                BatimentProductionV2.AddEmploye(emp);
+                WorkComponent.AddEmploye(emp);
             }
 
-
+            foreach(ItemRef it in InitComponent.List_ItemCreate)
+            {
+                WorkComponent.List_ItemCreate.Add(it);
+            }
+            WorkComponent.InitStock();
 
             //init Memory
             var mic = MemoryComponement.GetMemoryItemComponent();
-            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
-            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
 
-            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
-            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
+            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Farine_ref));
+            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Farine_ref));
 
-            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
-            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
+            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Ble_ref));
+            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Ble_ref));
 
+            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Orge_ref));
+            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Orge_ref));
 
+            //mic.Add(InitComponent.Farine_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
+            //mic.Add(InitComponent.Farine_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
+
+            //mic.Add(InitComponent.Ble_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
+            //mic.Add(InitComponent.Ble_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
+
+            //mic.Add(InitComponent.Orge_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
+            //mic.Add(InitComponent.Orge_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
+
+            ActiveBatiment();
         }
 
         internal int GetStockMAx()
@@ -83,7 +124,7 @@ namespace Batiment.BatimentProduction
             return StockBatiment.GetStockMax();
         }
 
-        public Shop GetShopComptonent()
+        public BatimentVente_Controller GetShopComptonent()
         {
             if (Shop != null)
                 return Shop;
@@ -91,8 +132,8 @@ namespace Batiment.BatimentProduction
         }
         public BatimentProduction_WorkComponent GetBatimentProductionV2Comptonent()
         {
-            if (BatimentProductionV2 != null)
-                return BatimentProductionV2;
+            if (WorkComponent != null)
+                return WorkComponent;
             throw new System.Exception("Pas de shop dans ce BatimentProductionV2");
         }
 
@@ -111,19 +152,15 @@ namespace Batiment.BatimentProduction
         {
             return StockBatiment.GetMoneyComponement();
         }
-        public Shop GetShopHigherPriceForItem(ItemRef itemRef)
+        public BatimentVente_Controller GetShopHigherPriceForItem(ItemRef itemRef)
         {
             return DecisionComponement.GetShopHigherPriceForItem(itemRef);
         }
-        public Shop GetShopLowerPriceForItem(ItemRef itemRef)
+        public BatimentVente_Controller GetShopLowerPriceForItem(ItemRef itemRef)
         {
             return DecisionComponement.GetShopLowerPriceForItem(itemRef);
         }
 
-        internal void AddMemoryInfo(UpdateShopInfo updateShopInfo)
-        {
-            MemoryComponement.memoryItem.Add(updateShopInfo);
-        }
     }
 
 

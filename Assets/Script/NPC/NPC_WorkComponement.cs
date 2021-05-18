@@ -1,6 +1,5 @@
 ﻿using Assets.Script.Batiment.Assignement_Work;
 using Batiment.BatimentProduction;
-using Batiment.BatimentProduction.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Batiment.BatimentVente;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,11 +19,12 @@ namespace Batiment.BatimentProduction
         public ItemRef Ble_ref;
         public ItemRef Orge_ref;
 
-        public Shop Shop_1;
+        public BatimentVente_Controller Shop_1;
         public float Distance_1;
 
-        public Shop Shop_2;
+        public BatimentVente_Controller Shop_2;
         public float Distance_2;
 
+        public List<ItemRef> List_ItemCreate;
     }
 }

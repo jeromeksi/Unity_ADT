@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -35,6 +36,14 @@ namespace Batiment.BatimentVente
             }
         }
 
+        public List<InfoItemRef> GetAllInfoItemRef()
+        {
+            return list_InfoItemRef;
+        }
+        internal InfoItemRef GetInfoItemRef(ItemRef it)
+        {
+            return list_InfoItemRef.Find(x => x.ItemRef == it);
+        }
     }
 
     public class InfoItemRef

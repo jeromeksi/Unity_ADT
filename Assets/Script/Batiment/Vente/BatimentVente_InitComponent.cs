@@ -12,7 +12,7 @@ namespace Batiment.BatimentVente
         public int StockMax;
         public int MoneyStart;
         public List<ItemStockInit> List_ItemStockInit;
-
+        public float IndexShop;
         //Work
         public int EmpMax;
         public List<NPCController> List_Emp;

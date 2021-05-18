@@ -18,28 +18,33 @@ namespace Batiment.BatimentVente
         public BatimentVente_Controller Controller;
 
         public List<NPCController> List_Emp;
-
+        public BatimentVente_WorkerComponent(BatimentVente_Controller cc)
+        {
+            Controller = cc;
+            List_Emp = new List<NPCController>();
+        }
 
 
         internal IEnumerator RoutineSell()
         {
             while(Controller.BatIsActive())
             {
-                foreach(var emp in List_Emp.Where(x=> x.IsWorking && !x.Work_HadMainAssing()))
-                {
-                    //emp
-                    var work = new BatimentVente_Work();
-                    work.BatimentVente_cmp = this;
-                    work.BatimentVente = Controller.transform.position;
+
+                    foreach (var emp in List_Emp.Where(x => x.IsWorking && !x.Work_HadMainAssing()))
+                    {
+                        //emp
+                        var work = new BatimentVente_Work();
+                        work.BatimentVente_cmp = this;
+                        work.BatimentVente = Controller.transform.position;
 
 
 
-                    emp.Set_MainAssign(work);
-                }
-                if(List_Emp.Count(x => x.IsWorking) == 0)
-                {
-                    Controller.SetCanShop(false);
-                }
+                        emp.Set_MainAssign(work);
+                    }
+                    if (List_Emp.Count(x => x.IsWorking) == 0)
+                    {
+                        Controller.SetCanShop(false);
+                    }
                 yield return new WaitForSeconds(1f);
             }
         }

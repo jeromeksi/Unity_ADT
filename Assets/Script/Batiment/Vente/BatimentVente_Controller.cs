@@ -58,7 +58,7 @@ namespace Batiment.BatimentVente
             TryGetComponent(out InitComponent);
 
 
-            MemoryComponent = new BatimentVente_MemoryComponent();
+            MemoryComponent = new BatimentVente_MemoryComponent(this);
             ShopComponent = new BatimentVente_ShopComponent(this);
             if (InitComponent != null)
             {

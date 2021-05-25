@@ -14,6 +14,7 @@ namespace Assets.Script.Batiment.Assignement_Work
     [Serializable]
     public abstract class Assignement
     {
+        public bool IsMainAssignement;
         public TypeAssignement TypeAssignement;
         public NPC_WorkComponement WorkComponement;
         public NPCController NPCController;
@@ -30,8 +31,7 @@ namespace Assets.Script.Batiment.Assignement_Work
     [Serializable]
     public class Buy : Assignement
     {
-
-        public bool IsMainAssignement;
+        public TypeBuy TypeBuy;
         public BatimentProduction_WorkComponent BatimentProduction;
 
         public BatimentVente_Controller Shop;
@@ -64,19 +64,36 @@ namespace Assets.Script.Batiment.Assignement_Work
                 yield return NPCController.CheckArrive();
 
 
-                //Vendre ou Buy
+
                 if(Shop.GetCanShop())
                 {
-
-                    foreach (var ita in List_Item)
+                    switch(TypeBuy)
                     {
-                        var trasact = Shop.SellItem(NPCController, ita.ItemRef, ita.Amount, WorkComponement.WorkMoney);
-                        if (trasact != null)
-                        {
-                            WorkComponement.List_StockItemWork.Add(new ItemAmount(trasact.ItemRef, trasact.Amount));
-                            WorkComponement.WorkMoney -= trasact.Money;
-                        }
+                        case TypeBuy.Order:
+                            foreach (var ita in List_Item)
+                            {
+                                var trasact = Shop.SellItem(NPCController, ita.ItemRef, ita.Amount, WorkComponement.WorkMoney);
+                                if (trasact != null)
+                                {
+                                    WorkComponement.List_StockItemWork.Add(new ItemAmount(trasact.ItemRef, trasact.Amount));
+                                    WorkComponement.WorkMoney -= trasact.Money;
+                                }
+                            }
+                            break;
+                        case TypeBuy.Share:
+                            var moneyByBuy = WorkComponement.WorkMoney / List_Item.Count;
+                            foreach (var ita in List_Item)
+                            {
+                                var trasact = Shop.SellItem(NPCController, ita.ItemRef, ita.Amount, moneyByBuy);
+                                if (trasact != null)
+                                {
+                                    WorkComponement.List_StockItemWork.Add(new ItemAmount(trasact.ItemRef, trasact.Amount));
+                                    WorkComponement.WorkMoney -= trasact.Money;
+                                }
+                            }
+                            break;
                     }
+                   
                     List_UpdateShopInfo = Shop.GetAllItemPrice(NPCController);
                 }
 
@@ -115,7 +132,6 @@ namespace Assets.Script.Batiment.Assignement_Work
     public class Sell : Assignement
     {
 
-        public bool IsMainAssignement;
         public BatimentProduction_WorkComponent BatimentProduction;
         public Vector3 Pos_Batiment;
 
@@ -240,7 +256,50 @@ namespace Assets.Script.Batiment.Assignement_Work
         {
             BatimentVente_cmp.AssignEnd(this, Succed);
         }
+      
     }
 
+    public class SearchInfo : Assignement
+    {
+        public Vector3 Pos_Batiment;
+        public BatimentProduction_WorkComponent BatimentProduction;
+        public List<BatimentVente_Controller> List_Shop = new List<BatimentVente_Controller>();
+        public Dictionary<BatimentVente_Controller, List<InfoItemRef>> Dict_Shop_ListInfoItem = new Dictionary<BatimentVente_Controller, List<InfoItemRef>>();
+        public override IEnumerator DoWork()
+        {
+            foreach(var shp in List_Shop)
+            {
+                //go to shop
+                NPCController.SetDestination(shp.gameObject.transform.position);
+                yield return NPCController.CheckArrive();
+
+                Dict_Shop_ListInfoItem.Add(shp, shp.GetAllItemPrice(NPCController));
+            }
+            //go to Bat
+            NPCController.SetDestination(Pos_Batiment);
+
+
+            yield return NPCController.CheckArrive();
+            EndAssign(true);
+        }
+
+        public override void EndAssign(bool Succed)
+        {
+            BatimentProduction.AssignEnd(this, true);
+        }
+    }
+    public enum TypeBuy
+    {
+        Share,
+        Order
+    }
+    public enum TypeAssignement
+    {
+        Buy,
+        Sell,
+        SearchInfo,
+        Goto,
+        Work
+    }
 
 }

@@ -15,15 +15,10 @@ namespace Batiment.BatimentProduction
 
         public int NumberPosteMax;
         public List<NPCController> List_Employe = new List<NPCController>();
-        public ItemRef Farine_ref;
-        public ItemRef Ble_ref;
-        public ItemRef Orge_ref;
 
-        public BatimentVente_Controller Shop_1;
-        public float Distance_1;
+        //public List<ItemRef> List_ItemRef = new List<ItemRef>();
+        public List<BatimentVente_Controller> List_Shop = new List<BatimentVente_Controller>();
 
-        public BatimentVente_Controller Shop_2;
-        public float Distance_2;
 
         public List<ItemRef> List_ItemCreate;
     }

@@ -146,7 +146,7 @@ namespace Batiment.BatimentVente
         }
 
     }
-
+    [Serializable]
     public class TransactionV2
     {
         public TypeTransaction TypeTransaction;

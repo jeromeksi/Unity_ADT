@@ -13,8 +13,10 @@ namespace Batiment.BatimentVente
 
         List<InfoItemRef> list_InfoItemRef;
 
-        public BatimentVente_MemoryComponent()
+        public BatimentVente_Controller Controller;
+        public BatimentVente_MemoryComponent(BatimentVente_Controller _Controller)
         {
+            Controller = _Controller;
             list_InfoItemRef = new List<InfoItemRef>();
         }
         public void AddItem(ItemStockInit ItemStockInit)
@@ -34,28 +36,38 @@ namespace Batiment.BatimentVente
             {
                 list_InfoItemRef.Add(new InfoItemRef(itemRef,PriceBuy,PriceSell));
             }
+            UpdateMemory();
         }
 
         public List<InfoItemRef> GetAllInfoItemRef()
         {
+            UpdateMemory();
             return list_InfoItemRef;
         }
         internal InfoItemRef GetInfoItemRef(ItemRef it)
         {
+            UpdateMemory();
             return list_InfoItemRef.Find(x => x.ItemRef == it);
         }
+        private void UpdateMemory()
+        {
+            foreach(var iir in list_InfoItemRef)
+            {
+                iir.HadStock = Controller.Stock.GetStock().GetAmount(iir.ItemRef) > 0;
+            }
+        }
     }
-
     public class InfoItemRef
     {
         public ItemRef ItemRef;
         public int PriceBuy;
         public int PriceSell;
-
+        public bool HadStock;
         public float? PercentMarge;
 
         public InfoItemRef(ItemRef ir,int pb,int ps)
         {
+            HadStock = true;
             ItemRef = ir;
             PriceBuy = pb;
             PriceSell = ps;

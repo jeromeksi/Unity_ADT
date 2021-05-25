@@ -11,8 +11,13 @@ namespace Batiment.BatimentProduction
     [Serializable]
     public class BatimentProduction_WorkComponent 
     {
+        private bool b_SearchInfo = false;
+        public bool SecourEnCours = false ;
         private int NumberPosteMax;
         private List<NPCController> List_Employe = new List<NPCController>();
+
+        public TimeSpan TimeMax_Seours = new TimeSpan(0,2,30);
+        public TimeSpan TimerMax_CheckInfo = new TimeSpan(0, 1, 0);
 
 
         public List<ItemRef> List_ItemCreate = new List<ItemRef>();
@@ -24,8 +29,9 @@ namespace Batiment.BatimentProduction
 
         public bool NeedMoney;
 
+        public DateTime DateLastProduction = DateTime.Now; // Check last Prodcution et declencher une routine de secours !! (pas mal) // Donc 2 routines (check + secours)
 
-
+        public DateTime DateLastTime_CheckPrice = DateTime.Now;
         //public Shop Magasin;
 
         //private Stock Stock = new Stock();
@@ -88,7 +94,6 @@ namespace Batiment.BatimentProduction
                         it.Amount = Convert.ToInt32(StockMax - itAmount);
 
                         list_itemRefBuy.Add(it);
-                        it.IsCurrentActivate = true;
                     }
                     else if (itAmount < StockMax * 0.7f)
                     {
@@ -97,7 +102,6 @@ namespace Batiment.BatimentProduction
 
                             it.Amount = Convert.ToInt32(StockMax - itAmount);
                             list_itemRefBuy.Add(it);
-                            it.IsCurrentActivate = true;///Problème
                         }
                     }
                 }
@@ -113,8 +117,11 @@ namespace Batiment.BatimentProduction
                         var Shop = Controller.GetShopLowerPriceForItem(irb.ItemRef); // a amélioré en une fonction
                         var PriceForItem = Controller.GetLowerPriceForItem(irb.ItemRef);
                         int TotalMoneyAss = 0;
-                        if (PriceForItem.HasValue)
+                        if (PriceForItem.HasValue && Shop != null)
                         {
+                            var ite = List_ItemNeedBuy.FirstOrDefault(x => x.ItemRef == irb.ItemRef);
+                            if (ite != null)
+                                ite.IsCurrentActivate = true;
                             TotalMoneyAss = irb.Amount * PriceForItem.Value;
 
                             TotalMoneyNeed += TotalMoneyAss;
@@ -133,6 +140,7 @@ namespace Batiment.BatimentProduction
                                     TypeAssignement = TypeAssignement.Buy,
                                     Money = TotalMoneyAss,
                                     Shop = Shop,
+                                    TypeBuy = TypeBuy.Share,
                                     Pos_Batiment = Controller.transform.position,
                                     BatimentProduction = this
                                 };
@@ -143,13 +151,13 @@ namespace Batiment.BatimentProduction
                     }
 
                     int currentMoney = Controller.GetMoneyComponement().GetMoney();
-
+                    int moneyByAssign = -1;
                     bool DoAssignEmp = true;
                     if (!NeedMoney && TotalMoneyNeed > currentMoney)
                     {
                         NeedMoney = true;
 
-                        int moneyByAssign = currentMoney / list_Ass.Count;
+                        moneyByAssign = currentMoney / list_Ass.Count;
                         if (moneyByAssign < 10)
                         {
                             DoAssignEmp = false;
@@ -160,6 +168,8 @@ namespace Batiment.BatimentProduction
                     {
                         foreach (var assT in list_Ass)
                         {
+                            if(moneyByAssign > -1)
+                                ((Buy)assT).Money = moneyByAssign;
                             var emp = GetFreeNPCController();
                             if (emp != null)
                             {
@@ -187,6 +197,8 @@ namespace Batiment.BatimentProduction
 
                 //Assign to Sell
                 var list_itemRefSell = new List<ItemCheckNeed>();
+                var list_SellAssign = new List<Sell>();
+
                 foreach (var it in List_ItemNeedSell.Where(x => x.IsCurrentActivate == false))
                 {
                     int itAmount = Controller.GetStock().GetAmount(it.ItemRef);
@@ -232,12 +244,33 @@ namespace Batiment.BatimentProduction
                     }
 
                 }
+                //Assing CheckPrice
 
-                //Assign le reste a Production
-                //foreach (var emp in List_Employe)
-                //{
-                //    emp.Set_MainAssign(MainAssignBatiment);
-                //}
+                if(DateTime.Now - DateLastTime_CheckPrice > TimerMax_CheckInfo && !b_SearchInfo)
+                {
+                    b_SearchInfo = true;
+                    var searchInfo = new SearchInfo()
+                    {
+                        IsMainAssignement = false,
+                        BatimentProduction = this,
+                        TypeAssignement = TypeAssignement.SearchInfo,
+                        Pos_Batiment = Controller.transform.position,
+                        List_Shop = Controller.GetAllShop()
+                    };
+                    var emp = GetFreeNPCController();
+                    if (emp != null)
+                    {
+                        emp.Assign(searchInfo);
+                    }
+                    else
+                    {
+                        AssignEnd(searchInfo, false);
+                    }
+                    DateLastTime_CheckPrice = DateTime.Now;
+                }
+
+
+
                 yield return new WaitForSeconds(1f);
             }
         }
@@ -299,7 +332,7 @@ namespace Batiment.BatimentProduction
                             etatWork += (List_Employe.Count(x => x.IsWorking && x.IsDoMainAssign()) / 10.0f);
                         }
                         AddItemStock(itr, itr.AmountByWorking);
-
+                        DateLastProduction = DateTime.Now;
                     }
                     etatWork = 0;
                     //Debug.Log("ici");
@@ -309,6 +342,73 @@ namespace Batiment.BatimentProduction
             }
         }
 
+        public IEnumerator CheckDateLastProduction()
+        {
+            while(Controller.BatIsActive())
+            {
+                if((DateTime.Now - DateLastProduction) > TimeMax_Seours && !SecourEnCours)
+                {
+                    SecourEnCours = true;
+                    yield return ResetBatiment();
+                }
+                yield return new WaitForSeconds(1f);
+            }
+        }
+
+        public IEnumerator ResetBatiment()
+        {
+
+
+            Controller.StopCoroutineWork(); //Stop coroutine => Sell All => Then restart Coroutine
+
+            Debug.Log($"Ok ResetBatiment call ");
+
+            var AllItemInStock = Controller.GetStock().GetAllItemInStock();
+            var list_itemRefSell = new List<Sell>();
+
+            foreach (var it in AllItemInStock)
+            {
+                var BestShop = Controller.GetShopHigherPriceForItem(it.ItemRef);
+                var SellExist = list_itemRefSell.Find(x => x.Shop == BestShop);
+                if(SellExist != null)
+                {
+                    SellExist.List_Item.Add(new ItemAmount(it.ItemRef, it.Amount));
+                }
+                else
+                {
+                    var v = new Sell()
+                    {
+                        IsMainAssignement = false,
+                        BatimentProduction = this,
+                        TypeAssignement = TypeAssignement.Sell,
+                        Pos_Batiment = Controller.transform.position,
+                        Money = 0,
+                        Shop = BestShop
+                    };
+                    v.List_Item.Add(new ItemAmount(it.ItemRef, it.Amount));
+                }
+
+            }
+            //Assign
+
+            foreach( var sell in list_itemRefSell)
+            {
+                var emp = GetFreeNPCController();
+                if (emp != null)
+                {
+                    emp.Assign(sell);
+                }
+                else
+                {
+                    AssignEnd(sell, false);
+                }
+            }
+            yield return new WaitForSeconds(15f);
+            Controller.StartCoroutineWork();
+            DateLastProduction = DateTime.Now;
+            SecourEnCours = false;
+
+        }
         internal void AddListItem(List<ItemAmount> list_StockItemWork)
         {
             foreach (var ita in list_StockItemWork.Where(x => x.Amount > 0))
@@ -388,10 +488,23 @@ namespace Batiment.BatimentProduction
             switch (work.TypeAssignement)
             {
                 case TypeAssignement.Buy:
-                    DesactivateAll(((Buy)work).List_Item, List_ItemNeedBuy);
+                    Buy buy = ((Buy)work);
+                    DesactivateAll(buy.List_Item, List_ItemNeedBuy);
+
+                    Controller.UpdateMemory(buy.List_UpdateShopInfo, buy.Shop);
                     break;
                 case TypeAssignement.Sell:
-                    DesactivateAll(((Sell)work).List_Item, List_ItemNeedSell);
+                    Sell sell = ((Sell)work);
+                    DesactivateAll(sell.List_Item, List_ItemNeedSell);
+                    Controller.UpdateMemory(sell.List_UpdateShopInfo, sell.Shop);
+                    break;
+                case TypeAssignement.SearchInfo:
+                    SearchInfo search = (SearchInfo)work;
+                    foreach(var infoShop in search.Dict_Shop_ListInfoItem)
+                    {
+                        Controller.UpdateMemory(infoShop.Value, infoShop.Key);                        
+                    }
+                    b_SearchInfo = false;
                     break;
             }
         }
@@ -437,13 +550,7 @@ namespace Batiment.BatimentProduction
         }
     }
    
-    public enum TypeAssignement
-    {
-        Buy,
-        Sell,
-        Goto,
-        Work
-    }
+   
     [Serializable]
     public class ItemCheckNeed
     {

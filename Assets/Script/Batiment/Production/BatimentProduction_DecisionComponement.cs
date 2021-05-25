@@ -1,5 +1,6 @@
 ﻿using Batiment.BatimentVente;
 using System;
+using System.Linq;
 using UnityEngine;
 
 
@@ -50,7 +51,7 @@ namespace Batiment.BatimentProduction
             {
                 float price = Mathf.Infinity;
                 BatimentVente_Controller shopRet = null;
-                foreach (var shopInfo in mi.List_ShopInfo)
+                foreach (var shopInfo in mi.List_ShopInfo.Where(x => x.HadStock))
                 {
                     if (shopInfo.PriceBuy.HasValue && shopInfo.PriceBuy.Value < price)
                     {

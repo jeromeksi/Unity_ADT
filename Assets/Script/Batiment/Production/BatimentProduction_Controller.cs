@@ -34,14 +34,12 @@ namespace Batiment.BatimentProduction
         public void ActiveBatiment()
         {
             IsActive = true;
-            StartCoroutine(WorkComponent.RoutineProdItemCreate());
-            StartCoroutine(WorkComponent.AssignWork());
+            StartCoroutineWork();
         }
         public void DisactiveBatiment()
         {
             IsActive = false;
-            StopCoroutine(WorkComponent.RoutineProdItemCreate());
-            StopCoroutine(WorkComponent.AssignWork());
+            StopCoroutineWork();
         }
 
 
@@ -98,26 +96,30 @@ namespace Batiment.BatimentProduction
             //init Memory
             var mic = MemoryComponement.GetMemoryItemComponent();
 
-            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Farine_ref));
-            mic.Add(InitComponent.Farine_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Farine_ref));
+            
+            foreach(var it in InitComponent.List_ItemCreate)
+            {
+                foreach(var shop  in InitComponent.List_Shop)
+                {
+                    mic.Add(it, shop, shop.GetItemPrice(it));
+                    foreach (var itr in it.Recipe)
+                    {
 
-            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Ble_ref));
-            mic.Add(InitComponent.Ble_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Ble_ref));
-
-            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_1, InitComponent.Shop_1.GetItemPrice(InitComponent.Orge_ref));
-            mic.Add(InitComponent.Orge_ref, InitComponent.Shop_2, InitComponent.Shop_2.GetItemPrice(InitComponent.Orge_ref));
-
-            //mic.Add(InitComponent.Farine_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
-            //mic.Add(InitComponent.Farine_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Farine_ref), InitComponent.Distance_1);
-
-            //mic.Add(InitComponent.Ble_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
-            //mic.Add(InitComponent.Ble_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Ble_ref), InitComponent.Distance_1);
-
-            //mic.Add(InitComponent.Orge_ref, InitComponent.Shop_1, InitComponent.Shop_1.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
-            //mic.Add(InitComponent.Orge_ref, InitComponent.Shop_2, InitComponent.Shop_2.PriceForItem(InitComponent.Orge_ref), InitComponent.Distance_1);
-
+                        mic.Add(itr.ItemRef, shop, shop.GetItemPrice(itr.ItemRef));
+                    }
+                }
+            }
             ActiveBatiment();
         }
+        public void UpdateMemory(List<InfoItemRef> list_update,BatimentVente_Controller shop)
+        {
+            var mic = MemoryComponement.GetMemoryItemComponent();
+            foreach (var iir in list_update)
+            {
+                mic.Add(iir.ItemRef, shop, iir);
+            }
+        }
+
 
         internal int GetStockMAx()
         {
@@ -161,6 +163,24 @@ namespace Batiment.BatimentProduction
             return DecisionComponement.GetShopLowerPriceForItem(itemRef);
         }
 
+        internal void StopCoroutineWork()
+        {
+            StopCoroutine(WorkComponent.RoutineProdItemCreate());
+            StopCoroutine(WorkComponent.AssignWork());
+            //StopCoroutine(WorkComponent.CheckDateLastProduction());
+        }
+
+        internal void StartCoroutineWork()
+        {
+            StartCoroutine(WorkComponent.RoutineProdItemCreate());
+            StartCoroutine(WorkComponent.AssignWork());
+            //StartCoroutine(WorkComponent.CheckDateLastProduction());
+        }
+
+        internal List<BatimentVente_Controller> GetAllShop()
+        {
+            return MemoryComponement.GetMemoryItemComponent().GetAllShop();
+        }
     }
 
 

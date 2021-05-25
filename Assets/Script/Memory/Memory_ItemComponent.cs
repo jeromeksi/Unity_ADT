@@ -7,25 +7,28 @@ using System.Linq;
 public class Memory_ItemComponent
 {
     public List<MemoryItem> MemoryItems;
-
+    List<BatimentVente_Controller> List_AllShop;
     public Memory_ItemComponent()
     {
         MemoryItems = new List<MemoryItem>();
+        List_AllShop = new List<BatimentVente_Controller>();
     }
-    public void Add(ItemRef itemRef, BatimentVente_Controller shop, int? priceS, int? priceB, float? distance)
+    public void Add(ItemRef itemRef, BatimentVente_Controller shop, int? priceS, int? priceB, bool hadStock,float? distance)
     {
         var mi = MemoryItems.Find(x => x.ItemRef == itemRef);
         if (mi != null)
         {
-            mi.AddInfo(shop, priceS, priceB, distance);
+            mi.AddInfo(shop, priceS, priceB, hadStock, distance);
         }
         else
         {
             var miT = new MemoryItem();
             miT.ItemRef = itemRef;
-            miT.AddInfo(shop, priceS, priceB, distance);
+            miT.AddInfo(shop, priceS, priceB, hadStock, distance);
             MemoryItems.Add(miT);
         }
+        if (!List_AllShop.Any(x => x == shop))
+            List_AllShop.Add(shop);
     }
     //public void Add(UpdateShopInfo updateShopInfo)
     //{
@@ -34,7 +37,7 @@ public class Memory_ItemComponent
 
     internal void Add(ItemRef farine_ref, BatimentVente_Controller shop_1, InfoItemRef infoItemRef)
     {
-        Add(farine_ref, shop_1, infoItemRef.PriceSell,infoItemRef.PriceBuy,0);
+        Add(farine_ref, shop_1, infoItemRef.PriceSell,infoItemRef.PriceBuy, infoItemRef.HadStock, 0);
     }
 
 
@@ -61,7 +64,10 @@ public class Memory_ItemComponent
         }
     }
 
-
+    internal List<BatimentVente_Controller> GetAllShop()
+    {
+        return List_AllShop;
+    }
 }
 
 [Serializable]
@@ -77,12 +83,12 @@ public class MemoryItem
     {
         ItemRef = _ItemRef;
     }
-    public void AddInfo(BatimentVente_Controller _shop, int? _priceS, int? _priceB, float? _distance)
+    public void AddInfo(BatimentVente_Controller _shop, int? _priceS, int? _priceB,bool hadStock, float? _distance)
     {
         var si = List_ShopInfo.Find(x => x.Shop == _shop);
         if(si != null)
         {
-
+            si.HadStock = hadStock;
             si.PriceBuy = _priceB;
             si.PriceSell = _priceS;
             si.Distance= _distance;
@@ -94,6 +100,7 @@ public class MemoryItem
                 Shop = _shop,
                 Distance = _distance,
                 PriceBuy = _priceB,
+                HadStock = hadStock,
                 PriceSell = _priceS,
             });
         }
@@ -119,4 +126,5 @@ public class ShopInfo
     public int? PriceSell;
     public int? PriceBuy;
     public float? Distance;
+    public bool HadStock;
 }

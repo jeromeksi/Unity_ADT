@@ -10,16 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 61fca022613ca3944829c4465143f5e5, type: 3}
-  m_Name: Farine
+  m_Name: Pain
   m_EditorClassIdentifier: 
-  ID: 2
-  Name: Farine
-  baseWorkingNeed: 3
-  AmountByWorking: 2
-  BasePrice: 0
+  ID: 10
+  Name: Pain
+  baseWorkingNeed: 30
+  AmountByWorking: 1
+  BasePrice: 1
   TypeCreate: 0
   Recipe:
-  - ItemRef: {fileID: 11400000, guid: c6fe2b8ce92d7304abbc9a0e270ad1f4, type: 2}
-    Amount: 2
-  - ItemRef: {fileID: 11400000, guid: 174ae0efa51c40246b49ce66a2fa11d7, type: 2}
-    Amount: 2
+  - ItemRef: {fileID: 11400000, guid: b4c7d17ca26b9fa4fb0779f65c22e3cf, type: 2}
+    Amount: 5

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Util;
 
 [Serializable]
@@ -70,6 +71,7 @@ public class Stock
         var it = List_StockItem.Find(x => x.ItemRef == itemRef);
         if (it != null)
             return it.Amount;
+
         return 0;
     }
     private void InitAdd(ItemRef itemRef, int Amoount)
@@ -94,6 +96,11 @@ public class Stock
     internal bool Add(ItemAmount ita, bool forceAdd = true)
     {
          return Add(ita.ItemRef, ita.Amount, forceAdd);
+    }
+
+    internal IEnumerable<StockItem> GetAllItemInStock()
+    {
+        return List_StockItem.Where(x => x.Amount > 0);
     }
 }
 
